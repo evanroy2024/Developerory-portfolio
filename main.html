@@ -14,12 +14,9 @@
     <style>
         :root { --brand-green: #4ade80; --deep-green: #15803d; --deep-forest: #1a4d1a; }
         
-        /* AGGRESSIVE SCROLLBAR REMOVAL 
-           Targeting html, body, and all elements 
-        */
         html, body {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
         }
 
         html::-webkit-scrollbar, 
@@ -43,6 +40,7 @@
             cursor: none;
         }
 
+        /* Redirect Effect */
         #redirect-overlay {
             position: fixed;
             inset: 0;
@@ -58,8 +56,9 @@
             color: black;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 800;
-            font-size: 2rem;
+            font-size: 2.5rem;
             letter-spacing: 0.5em;
+            text-align: center;
         }
 
         canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
@@ -74,6 +73,12 @@
             z-index: 10000;
             box-shadow: 0 0 15px var(--brand-green);
         }
+        
+        @media (hover: none) and (pointer: coarse) {
+            #cursor-dot, .trail { display: none !important; }
+            body { cursor: auto; }
+        }
+
         .trail {
             position: fixed;
             width: 5px;
@@ -110,6 +115,11 @@
             flex-direction: column;
             background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.6) 100%);
         }
+
+        @media (max-width: 768px) {
+            .ui-frame { inset: 5px; }
+        }
+
         .mono { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; }
         
         .sidebar { 
@@ -156,11 +166,16 @@
             transition: transform 0.4s ease-in-out;
         }
         #mobile-fullscreen-menu.active { transform: translateX(0); }
+        #mobile-fullscreen-menu a { pointer-events: auto; }
 
         .bottom-bar { height: 50px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; padding: 0 25px; pointer-events: auto; background: rgba(5,5,5,0.85); backdrop-filter: blur(15px); }
-        .content-container { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; perspective: 2000px; z-index: 10; }
+        
+        .content-container { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; perspective: 2000px; z-index: 10; padding: 20px; }
+        
         .section-content { position: absolute; width: 100%; max-width: 1100px; text-align: center; opacity: 0; pointer-events: none; will-change: transform, opacity, filter; transform-style: preserve-3d; }
+        
         .text-green-brand { color: var(--brand-green); }
+        
         .btn-connect {
             pointer-events: auto;
             border: 1px solid var(--brand-green);
@@ -176,7 +191,41 @@
         }
         .btn-connect:hover { background: var(--brand-green); color: #000; box-shadow: 0 0 20px rgba(74, 222, 128, 0.4); }
 
-        #about-vision, #about-detail { text-align: left; max-width: 1200px; display: flex; align-items: center; width: 100%; }
+        #about-vision, #about-detail { 
+            text-align: left; 
+            max-width: 1200px; 
+            display: flex; 
+            flex-direction: row;
+            align-items: center; 
+            width: 100%; 
+        }
+
+        @media (max-width: 1024px) {
+            #about-vision, #about-detail {
+                flex-direction: column !important;
+                justify-content: center !important;
+                text-align: center;
+            }
+            .vision-text-wrapper, .detail-text-wrapper {
+                margin: 0 !important;
+                max-width: 100% !important;
+                order: 1;
+            }
+            #laptop-container, #image-container {
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
+                right: auto !important;
+                transform: none !important;
+                width: 100% !important;
+                height: auto !important;
+                margin-bottom: 20px;
+                order: 0;
+            }
+            .laptop-mockup { transform: scale(0.6); margin: -40px 0; }
+            .about-image-clean { width: 250px !important; height: 300px !important; margin: 0 auto; }
+        }
+        
         #about-vision { justify-content: flex-end; }
         #about-detail { justify-content: flex-start; }
         
@@ -252,13 +301,14 @@
 
         @media (max-width: 640px) {
             #mobile-search-hide { display: none !important; }
+            .hero-title { font-size: 3.5rem !important; line-height: 1; }
         }
     </style>
 </head>
 <body>
 
 <div id="redirect-overlay">
-    <div class="glitch-text uppercase">OUR SERVICES</div>
+    <div class="glitch-text uppercase" id="overlay-text">LOADING</div>
 </div>
 
 <div id="cursor-dot"></div>
@@ -270,24 +320,24 @@
 <canvas id="canvas3d"></canvas>
 
 <div id="mobile-fullscreen-menu" class="mono text-2xl">
-    <a href="index.html" class="text-green-brand">HOME</a>
-    <a href="services.html">SERVICES</a>
-    <a href="cards.html">WORK</a>
-    <a href="contact.html">CONTACT</a>
+    <a href="javascript:void(0)" onclick="navigateWithEffect('index.html', 'HOME')" class="text-green-brand">HOME</a>
+    <a href="javascript:void(0)" onclick="navigateWithEffect('services.html', 'SERVICES')">SERVICES</a>
+    <a href="javascript:void(0)" onclick="navigateWithEffect('cards.html', 'WORK')">WORK</a>
+    <a href="javascript:void(0)" onclick="navigateWithEffect('contact.html', 'CONTACT')">CONTACT</a>
     <button onclick="toggleMenu()" class="mt-10 text-white/30 text-sm">CLOSE_</button>
 </div>
 
 <div class="ui-frame">
-    <div class="flex justify-between items-center px-8 py-5 border-b border-white/10 mono uppercase">
+    <div class="flex justify-between items-center px-4 md:px-8 py-5 border-b border-white/10 mono uppercase">
         <div class="flex items-center gap-4">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-[#22c55e] flex items-center justify-center rounded-sm">
-                    <span class="text-black font-black text-[18px]">R</span>
+                <div class="w-8 h-8 md:w-10 md:h-10 bg-[#22c55e] flex items-center justify-center rounded-sm">
+                    <span class="text-black font-black text-[14px] md:text-[18px]">R</span>
                 </div>
                 <span class="opacity-55 hidden sm:block">DEVELOPERROY </span>
             </div>
         </div>
-        <div class="tracking-[0.3em] font-medium"><span class="text-green-brand font-bold">&lt;Developerroy&gt;</span></div>
+        <div class="tracking-[0.1em] md:tracking-[0.3em] font-medium text-[10px] md:text-base"><span class="text-green-brand font-bold">&lt;Developerroy&gt;</span></div>
         <div class="flex gap-5">
             <button id="mobile-nav-trigger" onclick="toggleMenu()">
                 <i data-lucide="menu" class="w-6 h-6"></i>
@@ -297,28 +347,28 @@
 
     <div class="flex flex-1 overflow-hidden">
         <div class="sidebar">
-            <a href="main.html"><i data-lucide="home" class="sidebar-icon active"></i></a>
-            <a href="services.html"><i data-lucide="layers" class="sidebar-icon"></i></a>
-            <a href="cards.html"><i data-lucide="cpu" class="sidebar-icon"></i></a>
-            <a href="contact.html"><i data-lucide="mail" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="navigateWithEffect('index.html', 'HOME')"><i data-lucide="home" class="sidebar-icon active"></i></a>
+            <a href="javascript:void(0)" onclick="navigateWithEffect('services.html', 'SERVICES')"><i data-lucide="layers" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="navigateWithEffect('cards.html', 'WORK')"><i data-lucide="cpu" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="navigateWithEffect('contact.html', 'CONTACT')"><i data-lucide="mail" class="sidebar-icon"></i></a>
         </div>
 
         <div class="content-container">
             <div id="hero" class="section-content">
-                <div class="mono text-white/30 mb-8 uppercase tracking-[0.5em] hero-tag">Bologna // Italy</div>
-                <h1 class="text-6xl md:text-9xl font-bold leading-[0.85] tracking-tighter">
-                    Hi, I'm Roy , a<br>
+                <div class="mono text-white/30 mb-4 md:mb-8 uppercase tracking-[0.5em] hero-tag">Bologna // Italy</div>
+                <h1 class="hero-title text-5xl md:text-9xl font-bold leading-[0.85] tracking-tighter">
+                    Hi, I'm Roy, a<br>
                     <span class="text-green-brand">creative</span> developer
                 </h1>
                 <p class="mt-8 text-white/50 max-w-lg mx-auto mono text-[10px] leading-relaxed uppercase tracking-widest">
                     Merging technical expertise with <br>creativity and aesthetics.
                 </p>
-                <a href="contact.html" class="btn-connect mono font-bold">Let's Connect</a>
+                <a href="javascript:void(0)" onclick="navigateWithEffect('contact.html', 'CONTACT')" class="btn-connect mono font-bold">Let's Connect</a>
             </div>
 
             <div id="about-vision" class="section-content">
                 <div id="laptop-container">
-                    <div style="width: 500px; height: 320px; background: #1a1a1a; border: 12px solid #333; border-radius: 12px; position: relative; box-shadow: 0 0 60px rgba(74, 222, 128, 0.15);">
+                    <div class="laptop-mockup" style="width: 500px; height: 320px; background: #1a1a1a; border: 12px solid #333; border-radius: 12px; position: relative; box-shadow: 0 0 60px rgba(74, 222, 128, 0.15);">
                         <div style="width: 100%; height: 100%; background: #080808; overflow: hidden; position: relative; padding: 20px;">
                             <div class="text-green-brand mono" style="font-size: 11px; line-height: 1.8;">
                                 <div class="opacity-30">// Booting profile.sys...</div>
@@ -335,13 +385,13 @@
                     </div>
                 </div>
                 <div class="vision-text-wrapper">
-                    <div class="mono text-green-brand mb-6 uppercase tracking-[0.4em]">01 // About Me</div>
-                    <h2 class="text-5xl md:text-7xl font-bold tracking-tighter uppercase mb-8">5 Years of<br>Experience.</h2>
+                    <div class="mono text-green-brand mb-4 md:mb-6 uppercase tracking-[0.4em]">01 // About Me</div>
+                    <h2 class="text-4xl md:text-7xl font-bold tracking-tighter uppercase mb-4 md:mb-8">5 Years of<br>Experience.</h2>
                     <div class="grid grid-cols-2 gap-4 text-left">
-                        <div class="stat-card"><div class="text-green-brand font-bold text-2xl">5+</div><div class="mono text-[8px] opacity-50 uppercase">Years Mastery</div></div>
-                        <div class="stat-card"><div class="text-green-brand font-bold text-2xl">80+</div><div class="mono text-[8px] opacity-50 uppercase">Apps Built</div></div>
+                        <div class="stat-card"><div class="text-green-brand font-bold text-xl md:text-2xl">5+</div><div class="mono text-[8px] opacity-50 uppercase">Years Mastery</div></div>
+                        <div class="stat-card"><div class="text-green-brand font-bold text-xl md:text-2xl">80+</div><div class="mono text-[8px] opacity-50 uppercase">Apps Built</div></div>
                     </div>
-                    <p class="mt-8 text-white/70 mono text-[11px] leading-loose uppercase tracking-widest">
+                    <p class="mt-4 md:mt-8 text-white/70 mono text-[10px] md:text-[11px] leading-loose uppercase tracking-widest">
                         I bridge the gap between complex logic and stunning visual storytelling. With over 80 successful digital solutions delivered, I focus on engineering experiences that are as fast as they are beautiful.
                     </p>
                 </div>
@@ -349,13 +399,13 @@
 
             <div id="about-detail" class="section-content">
                 <div class="detail-text-wrapper">
-                    <div class="mono text-green-brand mb-6 uppercase tracking-[0.4em]">02 // Status</div>
-                    <h2 class="text-5xl md:text-7xl font-bold tracking-tighter uppercase mb-8">Five Star Rated<br>Freelancer.</h2>
+                    <div class="mono text-green-brand mb-4 md:mb-6 uppercase tracking-[0.4em]">02 // Status</div>
+                    <h2 class="text-4xl md:text-7xl font-bold tracking-tighter uppercase mb-4 md:mb-8">Five Star Rated<br>Freelancer.</h2>
                     <div class="stat-card">
-                        <div class="text-green-brand font-bold text-2xl">98%</div>
+                        <div class="text-green-brand font-bold text-xl md:text-2xl">98%</div>
                         <div class="mono text-[8px] opacity-50 uppercase">Success Rate</div>
                     </div>
-                    <p class="mt-8 text-white/70 mono text-[11px] leading-loose uppercase tracking-widest">
+                    <p class="mt-4 md:mt-8 text-white/70 mono text-[10px] md:text-[11px] leading-loose uppercase tracking-widest">
                         My commitment to excellence is reflected in my 98% success rate and consistent 5-star ratings across global platforms.
                     </p>
                 </div>
@@ -364,7 +414,7 @@
                         <div class="about-image-clean">
                             <img src="img/fiverr.png" alt="Fiverr Status">
                         </div>
-                        <a style="margin-top: -50px" href="https://www.fiverr.com/s/gDL6Xdo" target="_blank" class="btn-fiverr mono">Visit Profile</a>
+                        <a href="https://www.fiverr.com/s/gDL6Xdo" target="_blank" class="btn-fiverr mono">Visit Profile</a>
                     </div>
                 </div>
             </div>
@@ -375,8 +425,8 @@
         </div>
     </div>
 
-    <div class="bottom-bar mono text-[10px]">
-        <div class="flex items-center gap-6">
+    <div class="bottom-bar mono text-[8px] md:text-[10px]">
+        <div class="flex items-center gap-2 md:gap-6">
             <div id="mobile-search-hide" class="bg-green-brand/10 text-green-brand px-5 py-4 border-r border-white/10 self-stretch flex items-center">
                 <i data-lucide="search" class="w-4 h-4 mr-2"></i> SEARCH
             </div>
@@ -386,13 +436,13 @@
             <span id="coord">GMT+1 // BOLOGNA</span>
             <span id="scroll-pct">DEPTH: 0%</span>
         </div>
-        <div class="flex items-center gap-8">
+        <div class="flex items-center gap-4 md:gap-8">
             <div class="flex gap-5 opacity-50">
                 <a href="https://www.linkedin.com/in/papan-roy-778a94292?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank">
                     <i data-lucide="linkedin" class="w-4 h-4 hover:text-green-brand cursor-pointer"></i>
                 </a>
             </div>
-            <button onclick="window.location.href='contact.html'" class="border border-white/20 px-6 py-2.5 hover:bg-white hover:text-black transition-all font-bold uppercase tracking-[0.2em] text-[8px]">
+            <button onclick="navigateWithEffect('contact.html', 'CONTACT')" class="border border-white/20 px-3 md:px-6 py-2 transition-all font-bold uppercase tracking-[0.2em] text-[7px] md:text-[8px] pointer-events-auto">
                 GET_IN_TOUCH &rarr;
             </button>
         </div>
@@ -402,25 +452,33 @@
 <script>
     lucide.createIcons();
 
+    // SMOOTH REDIRECT LOGIC
+    function navigateWithEffect(url, label) {
+        const overlay = document.getElementById('redirect-overlay');
+        const overlayText = document.getElementById('overlay-text');
+        overlayText.innerText = label;
+        
+        gsap.to(overlay, { 
+            clipPath: "circle(150% at 50% 50%)", 
+            duration: 1.2, 
+            ease: "power4.inOut",
+            onComplete: () => { window.location.href = url; }
+        });
+    }
+
     function toggleMenu() {
         document.getElementById('mobile-fullscreen-menu').classList.toggle('active');
     }
 
-    // --- MOUSE TRACKING FOR PARALLAX ---
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
-
+    let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
     const cursorDot = document.getElementById('cursor-dot');
+    
     document.addEventListener('mousemove', (e) => {
         gsap.to(cursorDot, { x: e.clientX - 4, y: e.clientY - 4, duration: 0.1 });
-        
-        // Calculate relative mouse position
         mouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
         mouseY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
 
-        for(let i=0; i<2; i++) {
+        for(let i=0; i<1; i++) {
             const t = document.createElement('div');
             t.className = 'trail';
             t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px';
@@ -435,7 +493,6 @@
 
     gsap.to("#marquee", { xPercent: -50, repeat: -1, duration: 20, ease: "none" });
 
-    // --- THREE.JS SETUP ---
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#canvas3d'), antialias: true, alpha: true });
@@ -484,7 +541,7 @@
         wordSprites.push({ obj: sprite, speed: 0.005 + Math.random()*0.01 });
     });
 
-    camera.position.z = 18;
+    camera.position.z = window.innerWidth < 768 ? 25 : 18;
 
     gsap.registerPlugin(ScrollTrigger);
     gsap.to("#hero", { opacity: 1, duration: 1.2 });
@@ -497,20 +554,26 @@
     .to(engine.position, { z: 6 }, 0)
     .to(worldGroup.scale, { x: 0, y: 0, z: 0, opacity: 0 }, 0.2)
     .fromTo("#about-vision", { opacity: 0, y: 100 }, { opacity: 1, y: 0 }, 0.3)
-    .fromTo("#laptop-container", { opacity: 0, x: -100 }, { opacity: 1, x: 0, filter: "blur(0px)" }, 0.35)
+    .fromTo("#laptop-container", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, filter: "blur(0px)" }, 0.35)
     .to("#about-vision", { opacity: 0, y: -100 }, 0.65) 
     .fromTo("#about-detail", { opacity: 0, y: 100 }, { opacity: 1, y: 0 }, 0.8)
-    .fromTo("#image-container", { opacity: 0, x: 100 }, { opacity: 1, x: 0, filter: "blur(0px)" }, 0.85);
+    .fromTo("#image-container", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, filter: "blur(0px)" }, 0.85);
 
     let isRedirecting = false;
-    window.addEventListener('wheel', (e) => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50 && e.deltaY > 0 && !isRedirecting) {
+    const handleRedirect = () => {
+        if (!isRedirecting) {
             isRedirecting = true;
-            gsap.to("#redirect-overlay", { 
-                clipPath: "circle(150% at 50% 50%)", duration: 1.5, ease: "power4.inOut",
-                onComplete: () => { window.location.href = "services.html"; }
-            });
+            // Updated scroll-to-end to use the common animation function
+            navigateWithEffect('services.html', 'SERVICES');
         }
+    };
+
+    window.addEventListener('wheel', (e) => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && e.deltaY > 0) handleRedirect();
+    });
+
+    window.addEventListener('touchend', () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) handleRedirect();
     });
 
     ScrollTrigger.create({
@@ -523,28 +586,24 @@
 
     function animate() {
         requestAnimationFrame(animate);
-        
         targetX += (mouseX - targetX) * 0.05;
         targetY += (mouseY - targetY) * 0.05;
-
         worldGroup.rotation.y = targetX * 0.25; 
         worldGroup.rotation.x = -targetY * 0.25;
-
         engine.rotation.y += 0.004;
         ring1.rotation.z += 0.0015;
         ring2.rotation.x += 0.001;
-
         wordSprites.forEach(s => { 
             s.obj.position.y -= s.speed; 
             if(s.obj.position.y < -30) s.obj.position.y = 30; 
         });
-
         renderer.render(scene, camera);
     }
     animate();
 
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
+        camera.position.z = window.innerWidth < 768 ? 25 : 18;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });

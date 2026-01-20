@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developeroy / Contact </title>
+    <title>Developeroy / Contact</title>
     <link rel="icon" type="image/png" href="img/faviocn.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -49,6 +49,18 @@
             z-index: 1;
         }
 
+        #redirect-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--brand-green);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            clip-path: circle(0% at 50% 50%);
+            pointer-events: none;
+        }
+
         .bg-scrolling-container {
             position: fixed; top: 40%; left: 0; width: 100%; transform: translateY(-50%);
             pointer-events: none; z-index: 0; overflow: hidden;
@@ -59,21 +71,20 @@
             filter: blur(4px); text-transform: uppercase;
         }
 
-        /* UI FRAME */
+        /* UI FRAME - MATCHED TO WORK PAGE */
         .ui-frame {
-            position: fixed; inset: 10px; border: 1px solid rgba(74, 222, 128, 0.1);
+            position: fixed; inset: 10px; border: 1px solid rgba(255, 255, 255, 0.08);
             z-index: 100; pointer-events: none; display: flex; flex-direction: column;
         }
         @media (min-width: 1024px) { .ui-frame { inset: 15px; } }
 
         .mono { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; }
 
-        /* SIDEBAR RESTORED */
         .sidebar { 
             width: 80px; border-right: 1px solid rgba(255,255,255,0.1); 
             height: 100%; display: none; flex-direction: column; 
             align-items: center; padding-top: 130px; gap: 45px; 
-            pointer-events: auto; background: rgba(5,5,5,0.2);
+            pointer-events: auto;
         }
         @media (min-width: 1024px) { .sidebar { display: flex; } }
 
@@ -83,7 +94,28 @@
         }
         .sidebar-icon:hover, .sidebar-icon.active { color: var(--brand-green); transform: scale(1.2); }
 
-        /* MOBILE MENU */
+        /* MATCHED TOP NAV */
+        .top-nav {
+            height: 80px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; pointer-events: auto; background: transparent;
+        }
+        @media (min-width: 1024px) { .top-nav { padding: 0 32px; } }
+
+        /* MATCHED BOTTOM BAR */
+        .bottom-bar { 
+            height: 50px; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            pointer-events: auto; 
+            background: rgba(5,5,5,0.85); 
+            backdrop-filter: blur(15px);
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+
         #mobile-fullscreen-menu {
             position: fixed; inset: 0; background: #050505; z-index: 4000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -91,18 +123,7 @@
         }
         #mobile-fullscreen-menu.active { transform: translateX(0); }
 
-        .top-nav {
-            height: 80px; border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 25px; pointer-events: auto; background: transparent;
-        }
-
-        .bottom-bar {
-            height: 50px; border-top: 1px solid rgba(255,255,255,0.1); 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 25px; pointer-events: auto; background: transparent;
-        }
-
+        /* CONTENT STYLING */
         section {
             min-height: 100vh; padding: 120px 5% 50px 5%;
             display: flex; align-items: center; justify-content: center;
@@ -168,6 +189,7 @@
 </head>
 <body>
 
+<div id="redirect-overlay"><div class="glitch-text uppercase font-black tracking-widest" id="overlay-text" style="font-size: 2.5rem;">LOADING</div></div>
 <div id="cursor-dot"></div>
 <div class="ambient-glow"></div>
 
@@ -176,10 +198,10 @@
 </div>
 
 <div id="mobile-fullscreen-menu" class="mono">
-    <a href="main.html" class="text-white text-2xl mb-6">HOME</a>
-    <a href="services.html" class="text-white text-2xl mb-6">SERVICES</a>
-    <a href="cards.html" class="text-white text-2xl mb-6">WORK</a>
-    <a href="contact.html" class="text-brand-green text-2xl mb-6">CONTACT</a>
+    <a href="javascript:void(0)" onclick="handleNavigation('main.html', 'HOME')" class="text-white text-2xl mb-6">HOME</a>
+    <a href="javascript:void(0)" onclick="handleNavigation('services.html', 'SERVICES')" class="text-white text-2xl mb-6">SERVICES</a>
+    <a href="javascript:void(0)" onclick="handleNavigation('cards.html', 'WORK')" class="text-white text-2xl mb-6">WORK</a>
+    <a href="javascript:void(0)" onclick="handleNavigation('contact.html', 'CONTACT')" class="text-brand-green text-2xl mb-6">CONTACT</a>
     <button onclick="toggleMenu()" class="mt-10 text-white/30 text-sm tracking-widest">[ CLOSE_PROTOCOL ]</button>
 </div>
 
@@ -191,28 +213,42 @@
             </div>
             <span class="hidden md:block text-[10px] opacity-40">DEVELOPERROY / CONTACT</span>
         </div>
-      <div class="tracking-[0.2em] font-medium text-sm text-white/70 -translate-x-[50px]">
-    CONTACT ME
-</div>
-
+        <div class="tracking-[0.2em] font-medium text-[9px] lg:text-sm">Contact <span class="text-brand-green font-bold">&lt;Protocol&gt;</span></div>
         <button onclick="toggleMenu()" class="p-1 pointer-events-auto"><i data-lucide="menu" class="w-6 h-6"></i></button>
     </div>
 
     <div class="flex flex-1 overflow-hidden">
         <div class="sidebar">
-            <a href="main.html"><i data-lucide="home" class="sidebar-icon"></i></a>
-            <a href="services.html"><i data-lucide="layers" class="sidebar-icon"></i></a>
-            <a href="cards.html"><i data-lucide="cpu" class="sidebar-icon"></i></a>
-            <a href="contact.html"><i data-lucide="mail" class="sidebar-icon active"></i></a>
+            <a href="javascript:void(0)" onclick="handleNavigation('main.html', 'HOME')"><i data-lucide="home" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="handleNavigation('services.html', 'SERVICES')"><i data-lucide="layers" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="handleNavigation('cards.html', 'WORK')"><i data-lucide="cpu" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="handleNavigation('contact.html', 'CONTACT')"><i data-lucide="mail" class="sidebar-icon active"></i></a>
         </div>
     </div>
 
-    <div class="bottom-bar mono text-[10px]">
-        <div class="flex items-center gap-8">
-            <span class="text-brand-green opacity-50 uppercase tracking-widest hidden md:block">Encrypted_Link</span>
-            <span class="text-brand-green font-bold uppercase">Location: India // CU</span>
+    <div class="bottom-bar px-0 text-[8px] md:text-[10px]">
+        <div class="flex items-center gap-2 md:gap-6 h-full">
+            <div class="bg-brand-green/10 text-brand-green px-5 py-4 border-r border-white/10 self-stretch flex items-center font-bold">
+                <i data-lucide="search" class="w-4 h-4 mr-2"></i> CONTACT
+            </div>
+            <span class="opacity-50 uppercase tracking-widest hidden sm:block">Core v5.0.1</span>
         </div>
-        <div class="text-brand-green opacity-50 tracking-[0.2em]">© 2026 PROTOCOL_OS</div>
+        
+        <div class="hidden lg:flex gap-12 uppercase opacity-40 tracking-[0.2em]">
+            <span>GMT+1 // BOLOGNA</span>
+            <span>© 2026 PROTOCOL_OS</span>
+        </div>
+
+        <div class="flex items-center gap-4 md:gap-8 pr-8">
+            <div class="flex gap-5 opacity-50">
+                <a href="https://www.linkedin.com/in/papan-roy-778a94292" target="_blank">
+                    <i data-lucide="linkedin" class="w-4 h-4 hover:text-brand-green cursor-pointer"></i>
+                </a>
+            </div>
+            <button onclick="handleNavigation('main.html', 'HOME')" class="border border-white/20 px-3 md:px-6 py-2 transition-all font-bold uppercase tracking-[0.2em] text-[7px] md:text-[8px] hover:border-brand-green hover:text-brand-green">
+                BACK_TO_HOME &rarr;
+            </button>
+        </div>
     </div>
 </div>
 
@@ -238,7 +274,7 @@
                     </div>
                 </a>
 
-                <a href="https://www.linkedin.com/in/papan-roy-778a94292?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" class="contact-link group">
+                <a href="https://www.linkedin.com/in/papan-roy-778a94292" target="_blank" class="contact-link group">
                     <i data-lucide="linkedin" class="w-6 h-6 text-brand-green"></i>
                     <div>
                         <div class="text-[10px] text-brand-green/50 uppercase tracking-widest">Professional_Network</div>
@@ -290,6 +326,20 @@
     lucide.createIcons();
     gsap.registerPlugin(ScrollTrigger);
     
+    // Green Navigation Logic
+    function handleNavigation(url, label) {
+        const overlay = document.getElementById('redirect-overlay');
+        const overlayText = document.getElementById('overlay-text');
+        overlayText.innerText = label;
+        
+        gsap.to(overlay, { 
+            clipPath: "circle(150% at 50% 50%)", 
+            duration: 1.2, 
+            ease: "power4.inOut",
+            onComplete: () => { window.location.href = url; }
+        });
+    }
+
     const cursor = document.getElementById('cursor-dot');
     document.addEventListener('mousemove', (e) => {
         gsap.to(cursor, { x: e.clientX - 4, y: e.clientY - 4, duration: 0.1 });

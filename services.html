@@ -74,7 +74,21 @@
         }
         .content-scroll::-webkit-scrollbar { display: none; }
 
-        /* Premium Service Boxes */
+        /* Unified Bottom Bar Style */
+        .bottom-bar { 
+            height: 50px; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            pointer-events: auto; 
+            background: rgba(5,5,5,0.85); 
+            backdrop-filter: blur(15px);
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        /* Services Grid */
         .services-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px; max-width: 1200px; margin: 0 auto;
@@ -87,7 +101,6 @@
             overflow: hidden; backdrop-filter: blur(5px);
         }
 
-        /* Tech corner brackets */
         .service-card::before, .service-card::after {
             content: ''; position: absolute; width: 10px; height: 10px; border-color: var(--brand-green); opacity: 0.3; transition: 0.4s;
         }
@@ -100,17 +113,7 @@
             transform: translateY(-8px);
             box-shadow: 0 10px 30px -10px rgba(74, 222, 128, 0.2);
         }
-        
-        .service-card:hover::before, .service-card:hover::after { opacity: 1; width: 20px; height: 20px; }
 
-        .card-accent {
-            position: absolute; top: 0; right: 0; width: 40px; height: 40px;
-            background: linear-gradient(225deg, rgba(74, 222, 128, 0.2) 0%, transparent 70%);
-            opacity: 0; transition: 0.4s;
-        }
-        .service-card:hover .card-accent { opacity: 1; }
-
-        /* Aligned Explore Container */
         .explore-container {
             max-width: 1200px; margin: 60px auto 40px auto;
             border: 1px solid rgba(255,255,255,0.08);
@@ -133,7 +136,7 @@
 <body>
 
 <div id="redirect-overlay">
-    <div class="text-black font-black text-2xl tracking-[1em] uppercase">OUR WORKS</div>
+    <div class="text-black font-black text-2xl tracking-[1em] uppercase">LOADING ....</div>
 </div>
 
 <div id="cursor-dot"></div>
@@ -143,23 +146,23 @@
 </div>
 
 <div id="mobile-fullscreen-menu" class="font-['Orbitron'] text-2xl">
-    <a href="main.html" class="hover:text-brand-green">HOME</a>
-    <a href="services.html" class="text-brand-green">SERVICES</a>
-    <a href="cards.html" class="hover:text-brand-green">WORK</a>
-    <a href="contact.html" class="hover:text-brand-green">CONTACT</a>
+    <a href="javascript:void(0)" onclick="triggerRedirect('main.html')" class="hover:text-brand-green">HOME</a>
+    <a href="javascript:void(0)" onclick="triggerRedirect('services.html')" class="text-brand-green">SERVICES</a>
+    <a href="javascript:void(0)" onclick="triggerRedirect('cards.html')" class="hover:text-brand-green">WORK</a>
+    <a href="javascript:void(0)" onclick="triggerRedirect('contact.html')" class="hover:text-brand-green">CONTACT</a>
     <button onclick="toggleMenu()" class="mt-10 text-white/30 text-sm font-['JetBrains_Mono'] tracking-widest">CLOSE_</button>
 </div>
 
 <div class="ui-frame">
     <header class="flex justify-between items-center px-8 py-6 border-b border-white/10 font-['JetBrains_Mono'] text-[10px] uppercase tracking-widest pointer-events-auto">
        <div class="flex items-center gap-4">
-    <div class="w-10 h-10 bg-[#22c55e] flex items-center justify-center rounded-sm">
-        <span class="text-black font-black text-[18px]">R</span>
-    </div>
-    <span class="opacity-55 hidden sm:block">DEVELOPERROY / SERVICES</span>
-</div>
+            <div class="w-10 h-10 bg-[#22c55e] flex items-center justify-center rounded-sm">
+                <span class="text-black font-black text-[18px]">R</span>
+            </div>
+            <span class="opacity-55 hidden sm:block">DEVELOPERROY / SERVICES</span>
+        </div>
+        <div class="tracking-[0.2em] font-medium text-[9px] lg:text-sm">Our<span class="text-brand-green font-bold">&lt;Services&gt;</span></div>
 
-        <div class="font-bold text-white/80">stefano <span class="text-brand-green">&lt;capabilities&gt;</span></div>
         <button onclick="toggleMenu()" class="hover:text-brand-green transition-colors">
             <i data-lucide="menu" class="w-6 h-6"></i>
         </button>
@@ -167,16 +170,16 @@
 
     <div class="main-body flex flex-1 overflow-hidden">
         <aside class="sidebar">
-            <a href="index.html"><i data-lucide="home" class="sidebar-icon"></i></a>
-            <a href="services.html"><i data-lucide="layers" class="sidebar-icon active"></i></a>
-            <a href="cards.html"><i data-lucide="cpu" class="sidebar-icon"></i></a>
-            <a href="contact.html"><i data-lucide="mail" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="triggerRedirect('main.html')"><i data-lucide="home" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="triggerRedirect('services.html')"><i data-lucide="layers" class="sidebar-icon active"></i></a>
+            <a href="javascript:void(0)" onclick="triggerRedirect('cards.html')"><i data-lucide="cpu" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="triggerRedirect('contact.html')"><i data-lucide="mail" class="sidebar-icon"></i></a>
         </aside>
 
         <div class="content-scroll" id="mainScroll">
             <section class="text-center mb-10 pt-6">
                 <div class="section-tag uppercase mb-4">Our Services</div>
-                <h1 class="text-3xl md:text-6xl lg:text-7xl font-black font-['Orbitron'] tracking-tighter uppercase whitespace-nowrap">
+                <h1 class="text-3xl md:text-6xl lg:text-7xl font-black font-['Orbitron'] tracking-tighter uppercase">
                     Full-Stack <span class="text-brand-green">Engineering</span>
                 </h1>
             </section>
@@ -196,64 +199,30 @@
                 </div>
             </section>
 
-            <section class="max-w-4xl mx-auto text-center mb-20 px-4">
-                <p class="text-white/60 text-[12px] md:text-[14px] uppercase tracking-[0.3em] leading-[2.2] italic font-medium">
-                    "I build digital ecosystems where performance meets aesthetics. Every line of code is engineered to ensure scalability, while every pixel is placed to create an immersive narrative."
-                </p>
-                <div class="w-16 h-[2px] bg-brand-green mx-auto mt-8"></div>
-            </section>
-
             <div class="services-grid mb-10">
                 <div class="service-card group">
-                    <div class="card-accent"></div>
                     <div class="text-brand-green font-bold text-[9px] mb-8 opacity-40 tracking-[0.5em]">MODULE_01</div>
                     <i data-lucide="monitor" class="text-brand-green w-12 h-12 mb-8 group-hover:scale-110 transition-transform duration-500"></i>
                     <h3 class="font-['Orbitron'] font-bold text-2xl mb-4 tracking-tight">WEB DEVELOPMENT</h3>
                     <p class="text-[10px] text-white/40 leading-relaxed uppercase tracking-widest">High-performance React & Next.js systems engineered for maximum conversion and cinematic UX.</p>
                 </div>
                 <div class="service-card group">
-                    <div class="card-accent"></div>
                     <div class="text-brand-green font-bold text-[9px] mb-8 opacity-40 tracking-[0.5em]">MODULE_02</div>
                     <i data-lucide="smartphone" class="text-brand-green w-12 h-12 mb-8 group-hover:scale-110 transition-transform duration-500"></i>
                     <h3 class="font-['Orbitron'] font-bold text-2xl mb-4 tracking-tight">ANDROID APPS</h3>
                     <p class="text-[10px] text-white/40 leading-relaxed uppercase tracking-widest">Native Kotlin deployments focused on hardware efficiency and scalable mobile architecture.</p>
                 </div>
                 <div class="service-card group">
-                    <div class="card-accent"></div>
                     <div class="text-brand-green font-bold text-[9px] mb-8 opacity-40 tracking-[0.5em]">MODULE_03</div>
-                    <i data-lucide="layout" class="text-brand-green w-12 h-12 mb-8 group-hover:scale-110 transition-transform duration-500"></i>
-                    <h3 class="font-['Orbitron'] font-bold text-2xl mb-4 tracking-tight">IOS SOLUTIONS</h3>
-                    <p class="text-[10px] text-white/40 leading-relaxed uppercase tracking-widest">SwiftUI craftsmanship delivering premium performance across the entire Apple hardware stack.</p>
-                </div>
-                <div class="service-card group">
-                    <div class="card-accent"></div>
-                    <div class="text-brand-green font-bold text-[9px] mb-8 opacity-40 tracking-[0.5em]">MODULE_04</div>
                     <i data-lucide="zap" class="text-brand-green w-12 h-12 mb-8 group-hover:scale-110 transition-transform duration-500"></i>
                     <h3 class="font-['Orbitron'] font-bold text-2xl mb-4 tracking-tight">AI AUTOMATION</h3>
                     <p class="text-[10px] text-white/40 leading-relaxed uppercase tracking-widest">Custom LLM integration and neural processing layers to automate complex logical workflows.</p>
-                </div>
-                <div class="service-card group">
-                    <div class="card-accent"></div>
-                    <div class="text-brand-green font-bold text-[9px] mb-8 opacity-40 tracking-[0.5em]">MODULE_05</div>
-                    <i data-lucide="watch" class="text-brand-green w-12 h-12 mb-8 group-hover:scale-110 transition-transform duration-500"></i>
-                    <h3 class="font-['Orbitron'] font-bold text-2xl mb-4 tracking-tight">WEARABLES</h3>
-                    <p class="text-[10px] text-white/40 leading-relaxed uppercase tracking-widest">Specialized SDK engineering for real-time biometric tracking and smartwatch utility nodes.</p>
-                </div>
-                <div class="service-card group">
-                    <div class="card-accent"></div>
-                    <div class="text-brand-green font-bold text-[9px] mb-8 opacity-40 tracking-[0.5em]">MODULE_06</div>
-                    <i data-lucide="search" class="text-brand-green w-12 h-12 mb-8 group-hover:scale-110 transition-transform duration-500"></i>
-                    <h3 class="font-['Orbitron'] font-bold text-2xl mb-4 tracking-tight">SEO CORE</h3>
-                    <p class="text-[10px] text-white/40 leading-relaxed uppercase tracking-widest">Technical SEO audits and algorithmic strategy to dominate organic search rankings globally.</p>
                 </div>
             </div>
 
             <section class="explore-container">
                 <div class="section-tag uppercase mb-6">Execution Phase</div>
                 <h2 class="text-3xl md:text-5xl font-['Orbitron'] font-black uppercase mb-6">View My <span class="text-brand-green">Projects</span></h2>
-                <p class="text-[10px] text-white/40 uppercase tracking-[0.4em] max-w-xl mx-auto leading-loose mb-10 px-4">
-                    Witness the technical blueprints and final deployments of my most complex engineering feats.
-                </p>
                 <a href="javascript:void(0)" onclick="triggerRedirect('cards.html')" class="btn-explore">
                     Launch Archive &rarr;
                 </a>
@@ -265,11 +234,30 @@
         </div>
     </div>
 
-    <footer class="bottom-bar px-8 py-5 border-t border-white/10 flex justify-between items-center font-['JetBrains_Mono'] text-[9px] opacity-50 uppercase tracking-widest pointer-events-auto">
-        <div class="hidden sm:block">Coordinates: 44.49° N, 11.34° E</div>
-        <div id="scroll-pct">Depth: 0%</div>
-        <div class="text-brand-green font-bold">Secure_Link</div>
-    </footer>
+    <div class="bottom-bar px-0 text-[8px] md:text-[10px]">
+        <div class="flex items-center gap-2 md:gap-6 h-full">
+            <div id="mobile-search-hide" class="bg-green-brand/10 text-brand-green px-5 py-4 border-r border-white/10 self-stretch flex items-center font-bold">
+                <i data-lucide="search" class="w-4 h-4 mr-2"></i> SERVICES
+            </div>
+            <span class="opacity-50 uppercase tracking-widest">Core v5.0.1</span>
+        </div>
+        
+        <div class="hidden lg:flex gap-12 uppercase opacity-40 tracking-[0.2em]">
+            <span id="coord">GMT+1 // BOLOGNA</span>
+            <span id="scroll-pct">DEPTH: 0%</span>
+        </div>
+
+        <div class="flex items-center gap-4 md:gap-8 pr-8">
+            <div class="flex gap-5 opacity-50">
+                <a href="https://www.linkedin.com/in/papan-roy-778a94292" target="_blank">
+                    <i data-lucide="linkedin" class="w-4 h-4 hover:text-brand-green cursor-pointer"></i>
+                </a>
+            </div>
+            <button onclick="triggerRedirect('contact.html')" class="border border-white/20 px-3 md:px-6 py-2 transition-all font-bold uppercase tracking-[0.2em] text-[7px] md:text-[8px] hover:border-brand-green hover:text-brand-green">
+                GET_IN_TOUCH &rarr;
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -280,6 +268,7 @@
         document.getElementById('mobile-fullscreen-menu').classList.toggle('active');
     }
 
+    // Cursor Trail
     const cursorDot = document.getElementById('cursor-dot');
     document.addEventListener('mousemove', (e) => {
         gsap.to(cursorDot, { x: e.clientX - 4, y: e.clientY - 4, duration: 0.1 });
@@ -292,36 +281,36 @@
 
     gsap.to("#marquee", { xPercent: -50, repeat: -1, duration: 30, ease: "none" });
 
+    // Counters
     document.querySelectorAll('.counter').forEach(c => {
         const target = +c.getAttribute('data-target');
         gsap.to(c, {
             innerText: target, duration: 2.5, snap: { innerText: 1 },
-            scrollTrigger: { 
-                trigger: c, 
-                scroller: ".content-scroll",
-                start: "top 95%" 
-            }
+            scrollTrigger: { trigger: c, scroller: ".content-scroll", start: "top 95%" }
         });
     });
 
-    // Handle Redirect with Green Screen Effect
+    // GREEN REDIRECT EFFECT
     let isRedirecting = false;
     function triggerRedirect(url) {
         if (isRedirecting) return;
         isRedirecting = true;
+        document.getElementById('mobile-fullscreen-menu').classList.remove('active');
+
         gsap.to("#redirect-overlay", { 
-            clipPath: "circle(150% at 50% 50%)", duration: 1.2, ease: "power4.inOut",
+            clipPath: "circle(150% at 50% 50%)", 
+            duration: 1.2, 
+            ease: "power4.inOut",
             onComplete: () => { window.location.href = url; }
         });
     }
 
-    // AUTO REDIRECT ON SCROLL END
+    // Scroll Tracking
     const scrollArea = document.querySelector('.content-scroll');
     scrollArea.addEventListener('scroll', () => {
         const pct = Math.round((scrollArea.scrollTop / (scrollArea.scrollHeight - scrollArea.clientHeight)) * 100);
-        document.getElementById('scroll-pct').innerText = `Depth: ${pct || 0}%`;
+        document.getElementById('scroll-pct').innerText = `DEPTH: ${pct || 0}%`;
         
-        // Trigger if user reaches the bottom (99% or more)
         if (pct >= 99 && !isRedirecting) {
             triggerRedirect('cards.html');
         }

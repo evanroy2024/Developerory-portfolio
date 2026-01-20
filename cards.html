@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developeroy / work </title>
+    <title>Developeroy / work</title>
     <link rel="icon" type="image/png" href="img/faviocn.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -87,10 +87,16 @@
         #mobile-fullscreen-menu.active { transform: translateX(0); }
 
         .bottom-bar { 
-            height: 50px; border-top: 1px solid rgba(255,255,255,0.1); 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 15px; pointer-events: auto; background: rgba(5,5,5,0.85); 
-            backdrop-filter: blur(15px); 
+            height: 50px; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            pointer-events: auto; 
+            background: rgba(5,5,5,0.85); 
+            backdrop-filter: blur(15px);
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
         }
 
         .grid-container {
@@ -138,7 +144,6 @@
             transition: all 0.3s; pointer-events: auto;
         }
 
-        /* PROJECT MODAL & EXIT BUTTON */
         #project-modal {
             position: fixed; inset: 0; background: rgba(5,5,5,0.98);
             backdrop-filter: blur(20px); z-index: 5000;
@@ -182,16 +187,16 @@
 </head>
 <body>
 
-<div id="redirect-overlay"><div class="glitch-text uppercase font-black tracking-widest" style="font-size: 2.5rem;">CONTACT US</div></div>
+<div id="redirect-overlay"><div class="glitch-text uppercase font-black tracking-widest" id="overlay-text" style="font-size: 2.5rem;">LOADING</div></div>
 <div class="ambient-glow" id="ambient-glow"></div>
 <div id="cursor-dot"></div>
 <div id="bg-number">01</div>
 
 <div id="mobile-fullscreen-menu" class="mono">
-    <a href="main.html" class="text-white text-2xl mb-6 hover:text-green-400">HOME</a>
-    <a href="services.html" class="text-white text-2xl mb-6 hover:text-green-400">SERVICES</a>
-    <a href="cards.html" class="text-green-400 text-2xl mb-6">WORK</a>
-    <a href="contact.html" class="text-white text-2xl mb-6 hover:text-green-400">CONTACT</a>
+    <a href="javascript:void(0)" onclick="handleNavigation('main.html', 'HOME')" class="text-white text-2xl mb-6 hover:text-green-400">HOME</a>
+    <a href="javascript:void(0)" onclick="handleNavigation('services.html', 'SERVICES')" class="text-white text-2xl mb-6 hover:text-green-400">SERVICES</a>
+    <a href="javascript:void(0)" onclick="handleNavigation('cards.html', 'WORK')" class="text-green-400 text-2xl mb-6">WORK</a>
+    <a href="javascript:void(0)" onclick="handleNavigation('contact.html', 'CONTACT')" class="text-white text-2xl mb-6 hover:text-green-400">CONTACT</a>
     <button onclick="toggleMenu()" class="mt-10 text-white/30 text-sm tracking-widest">[ CLOSE_PROTOCOL ]</button>
 </div>
 
@@ -218,16 +223,16 @@
             </div>
             <span class="hidden md:block text-[10px] opacity-40">DEVELOPERROY / WORK</span>
         </div>
-        <div class="tracking-[0.2em] font-medium text-[9px] lg:text-sm">stefano <span class="text-brand-green font-bold">&lt;bartoletti&gt;</span></div>
+        <div class="tracking-[0.2em] font-medium text-[9px] lg:text-sm">Production <span class="text-brand-green font-bold">&lt;Works&gt;</span></div>
         <button onclick="toggleMenu()" class="pointer-events-auto p-1"><i data-lucide="menu" class="w-5 h-5 lg:w-6 lg:h-6"></i></button>
     </div>
 
     <div class="flex flex-1 overflow-hidden">
         <div class="sidebar">
-            <a href="main.html"><i data-lucide="home" class="sidebar-icon"></i></a>
-            <a href="services.html"><i data-lucide="layers" class="sidebar-icon"></i></a>
-            <a href="cards.html"><i data-lucide="cpu" class="sidebar-icon active"></i></a>
-            <a href="contact.html"><i data-lucide="mail" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="handleNavigation('main.html', 'HOME')"><i data-lucide="home" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="handleNavigation('services.html', 'SERVICES')"><i data-lucide="layers" class="sidebar-icon"></i></a>
+            <a href="javascript:void(0)" onclick="handleNavigation('cards.html', 'WORK')"><i data-lucide="cpu" class="sidebar-icon active"></i></a>
+            <a href="javascript:void(0)" onclick="handleNavigation('contact.html', 'CONTACT')"><i data-lucide="mail" class="sidebar-icon"></i></a>
         </div>
 
         <div class="grid-container">
@@ -255,15 +260,26 @@
         </div>
     </div>
 
-    <div class="bottom-bar mono text-[10px]">
-        <div class="flex items-center gap-4">
-            <div class="bg-white/10 text-brand-green px-3 lg:px-5 py-4 border-r border-white/10 flex items-center">
+    <div class="bottom-bar px-0 text-[8px] md:text-[10px]">
+        <div class="flex items-center gap-2 md:gap-6 h-full">
+            <div class="bg-brand-green/10 text-brand-green px-5 py-4 border-r border-white/10 self-stretch flex items-center font-bold">
                 <i data-lucide="search" class="w-4 h-4 mr-2"></i> WORK
             </div>
+            <span class="opacity-50 uppercase tracking-widest hidden sm:block">Core v5.0.1</span>
         </div>
-        <div class="flex items-center gap-4 lg:gap-8">
-            <span id="scroll-pct" class="opacity-40">NODE: 01/06</span>
-            <button onclick="window.location.href='contact.html'" class="border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-all font-bold text-[8px]">
+        
+        <div class="hidden lg:flex gap-12 uppercase opacity-40 tracking-[0.2em]">
+            <span id="coord">GMT+1 // BOLOGNA</span>
+            <span id="scroll-pct">NODE: 01/06</span>
+        </div>
+
+        <div class="flex items-center gap-4 md:gap-8 pr-8">
+            <div class="flex gap-5 opacity-50">
+                <a href="https://www.linkedin.com/in/papan-roy-778a94292" target="_blank">
+                    <i data-lucide="linkedin" class="w-4 h-4 hover:text-brand-green cursor-pointer"></i>
+                </a>
+            </div>
+            <button onclick="handleNavigation('contact.html', 'CONTACT US')" class="border border-white/20 px-3 md:px-6 py-2 transition-all font-bold uppercase tracking-[0.2em] text-[7px] md:text-[8px] hover:border-brand-green hover:text-brand-green">
                 GET_IN_TOUCH &rarr;
             </button>
         </div>
@@ -275,73 +291,29 @@
 <script>
     lucide.createIcons();
 
+    // Central Navigation Handler with Green Effect
+    function handleNavigation(url, label) {
+        const overlay = document.getElementById('redirect-overlay');
+        const overlayText = document.getElementById('overlay-text');
+        overlayText.innerText = label;
+        
+        gsap.to(overlay, { 
+            clipPath: "circle(150% at 50% 50%)", 
+            duration: 1.2, 
+            ease: "power4.inOut",
+            onComplete: () => {
+                window.location.href = url;
+            }
+        });
+    }
+
     const projects = [
-        { 
-            title: "BREATHE<br>WITH ME", 
-            cardTitle: "BREATHEWITHME", 
-            tag: "Wellness / iOS", 
-            desc: "A premium mindfulness companion designed for deep stress relief. BreatheWithMe provides immersive guided sessions to optimize your mental state anywhere, anytime.", 
-            img: "img/1.png", 
-            color: "#4ade80", 
-            soft: "rgba(74, 222, 128, 0.25)", 
-            link: "https://apps.apple.com/us/app/breathewithme/id6741172979", 
-            btnText: "IOS APP" 
-        },
-        { 
-            title: "WALKLIST<br>PRO", 
-            cardTitle: "WALKLISTPRO", 
-            tag: "Survey Tool", 
-            desc: "The ultimate survey application for professionals. WalkListPro streamlines data collection with a high-performance interface and real-time synchronization capabilities.", 
-            img: "img/2.png", 
-            color: "#3b82f6", 
-            soft: "rgba(59, 130, 246, 0.25)", 
-            link: "https://apps.apple.com/us/app/walk-list-pro/id6744178530", 
-            btnText: "IOS APP" 
-        },
-        { 
-            title: "DN<br>ELECTRONICS", 
-            cardTitle: "DNELECTRONICS", 
-            tag: "E-Commerce", 
-            desc: "A robust electronic retail platform featuring seamless payment integration, intuitive product navigation, and high-speed architectural performance.", 
-            img: "img/3.png", 
-            color: "#f43f5e", 
-            soft: "rgba(244, 63, 94, 0.25)", 
-            link: "https://dnelectronicsshop.com/", 
-            btnText: "Live Website" 
-        },
-        { 
-            title: "BREATHE<br>ANDROID", 
-            cardTitle: "BREATHEWITHME", 
-            tag: "Wellness / Android", 
-            desc: "The Android version of the premier mindfulness tool. Experience the same high-fidelity guided breathing exercises on the Google Play ecosystem.", 
-            img: "img/4.png", 
-            color: "#fbbf24", 
-            soft: "rgba(251, 191, 36, 0.25)", 
-            link: "https://play.google.com/store/apps/details?id=com.devroy.bwmapp", 
-            btnText: "Android App" 
-        },
-        { 
-            title: "TASTE<br>PARADISE", 
-            cardTitle: "RESTAURANT", 
-            tag: "Food & Beverage", 
-            desc: "An immersive digital menu and brand experience for premium dining. Taste Paradise captures the essence of culinary art through visual elegance.", 
-            img: "img/5.png", 
-            color: "#a855f7", 
-            soft: "rgba(168, 85, 247, 0.25)", 
-            link: "https://erenroy.github.io/Reausturent-Essence/", 
-            btnText: "Live Website" 
-        },
-        { 
-            title: "LOTUS<br>PROPERTY", 
-            cardTitle: "LOTUS PROPERTY", 
-            tag: "Real Estate", 
-            desc: "Comprehensive management suite for Lotus Property Management. Designed for internal operational efficiency and real estate asset tracking.", 
-            img: "img/6.png", 
-            color: "#06b6d4", 
-            soft: "rgba(6, 182, 212, 0.25)", 
-            link: "#", 
-            btnText: "( This is internal project of client cant be shared )" 
-        }
+        { title: "BREATHE<br>WITH ME", cardTitle: "BREATHEWITHME", tag: "Wellness / iOS", desc: "A premium mindfulness companion designed for deep stress relief. BreatheWithMe provides immersive guided sessions to optimize your mental state anywhere, anytime.", img: "img/1.png", color: "#4ade80", soft: "rgba(74, 222, 128, 0.25)", link: "https://apps.apple.com/us/app/breathewithme/id6741172979", btnText: "IOS APP" },
+        { title: "WALKLIST<br>PRO", cardTitle: "WALKLISTPRO", tag: "Survey Tool", desc: "The ultimate survey application for professionals. WalkListPro streamlines data collection with a high-performance interface and real-time synchronization capabilities.", img: "img/2.png", color: "#3b82f6", soft: "rgba(59, 130, 246, 0.25)", link: "https://apps.apple.com/us/app/walk-list-pro/id6744178530", btnText: "IOS APP" },
+        { title: "DN<br>ELECTRONICS", cardTitle: "DNELECTRONICS", tag: "E-Commerce", desc: "A robust electronic retail platform featuring seamless payment integration, intuitive product navigation, and high-speed architectural performance.", img: "img/3.png", color: "#f43f5e", soft: "rgba(244, 63, 94, 0.25)", link: "https://dnelectronicsshop.com/", btnText: "Live Website" },
+        { title: "BREATHE<br>ANDROID", cardTitle: "BREATHEWITHME", tag: "Wellness / Android", desc: "The Android version of the premier mindfulness tool. Experience the same high-fidelity guided breathing exercises on the Google Play ecosystem.", img: "img/4.png", color: "#fbbf24", soft: "rgba(251, 191, 36, 0.25)", link: "https://play.google.com/store/apps/details?id=com.devroy.bwmapp", btnText: "Android App" },
+        { title: "TASTE<br>PARADISE", cardTitle: "RESTAURANT", tag: "Food & Beverage", desc: "An immersive digital menu and brand experience for premium dining. Taste Paradise captures the essence of culinary art through visual elegance.", img: "img/5.png", color: "#a855f7", soft: "rgba(168, 85, 247, 0.25)", link: "https://erenroy.github.io/Reausturent-Essence/", btnText: "Live Website" },
+        { title: "LOTUS<br>PROPERTY", cardTitle: "LOTUS PROPERTY", tag: "Real Estate", desc: "Comprehensive management suite for Lotus Property Management. Designed for internal operational efficiency and real estate asset tracking.", img: "img/6.png", color: "#06b6d4", soft: "rgba(6, 182, 212, 0.25)", link: "#", btnText: "( This is internal project of client cant be shared )" }
     ];
 
     let activeIdx = 0;
@@ -375,9 +347,7 @@
     contactCard.id = "deck-contact-card";
     contactCard.style.transform = `rotate(25deg) translateY(20px)`;
     contactCard.innerHTML = `<i data-lucide="send" class="w-6 h-6 lg:w-8 lg:h-8 text-black"></i>`;
-    contactCard.onclick = () => {
-        gsap.to("#redirect-overlay", { clipPath: "circle(150% at 50% 50%)", duration: 1.2, onComplete: () => window.location.href="contact.html"});
-    };
+    contactCard.onclick = () => handleNavigation('contact.html', 'CONTACT US');
     deck.appendChild(contactCard);
 
     function selectProject(idx) {
@@ -388,7 +358,6 @@
         gsap.to(".grid-container, #bg-number", { opacity: 0, duration: 0.3, onComplete: () => {
             document.documentElement.style.setProperty('--brand-green', p.color);
             document.documentElement.style.setProperty('--accent-soft', p.soft);
-            
             document.getElementById('bg-number').style.color = p.color;
             document.getElementById('bg-number').innerText = `0${idx + 1}`;
             document.getElementById('logo-box').style.backgroundColor = p.color;
@@ -400,11 +369,9 @@
             document.getElementById('panel-desc').innerText = p.desc;
             document.getElementById('panel-index').innerText = `0${idx + 1}`;
             document.getElementById('scroll-pct').innerText = `NODE: 0${idx + 1}/06`;
-            
             const mainLink = document.getElementById('main-demo-link');
             mainLink.href = p.link;
             mainLink.innerHTML = `${p.btnText} <i data-lucide="arrow-up-right" class="w-4 h-4"></i>`;
-            
             gsap.to(".grid-container, #bg-number", { opacity: 1, duration: 0.5 });
             lucide.createIcons();
         }});
@@ -417,11 +384,9 @@
         document.getElementById('modal-title').innerHTML = p.title;
         document.getElementById('modal-desc').innerText = p.desc;
         document.getElementById('modal-index').innerText = `0${activeIdx + 1}`;
-        
         const modalLink = document.getElementById('modal-link');
         modalLink.href = p.link;
         modalLink.innerHTML = `${p.btnText} <i data-lucide="arrow-up-right" class="w-4 h-4"></i>`;
-        
         modal.style.display = 'flex';
         gsap.to(modal, { opacity: 1, duration: 0.5 });
         lucide.createIcons();
@@ -432,7 +397,6 @@
     }
 
     selectProject(0);
-    lucide.createIcons();
 </script>
 </body>
 </html>

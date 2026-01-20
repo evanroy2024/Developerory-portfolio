@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developeroy </title>
+    <link rel="icon" type="image/png" href="img/faviocn.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --brand-green: #4ade80;
+            --accent-glow: rgba(74, 222, 128, 0.4);
+            --ui-border: rgba(74, 222, 128, 0.15);
+            --bg-color: #0a0f0b; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: #ffffff; 
+            font-family: 'JetBrains Mono', monospace; 
+            overflow: hidden; 
+            height: 100vh; 
+        }
+
+        /* --- REDIRECT OVERLAY --- */
+        #redirect-overlay {
+            position: fixed; inset: 0; background: var(--brand-green); z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
+            clip-path: circle(0% at 50% 50%); pointer-events: none;
+        }
+        .glitch-text { 
+            color: #000; font-weight: 800; font-size: 2.5rem; 
+            letter-spacing: 0.5em; font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        /* --- SVG ARCHITECTURE --- */
+        #drawingSvg {
+            position: fixed; inset: 0; width: 100%; height: 100%;
+            z-index: 50; pointer-events: none;
+        }
+        .draw-path {
+            fill: none; stroke: var(--brand-green); stroke-width: 1;
+            vector-effect: non-scaling-stroke; opacity: 0.4;
+        }
+
+        /* --- INTERFACE TEXT ELEMENTS --- */
+        .ui-label {
+            position: fixed; font-size: 10px; color: var(--brand-green);
+            text-transform: uppercase; letter-spacing: 2px; opacity: 0.6;
+            z-index: 60; pointer-events: none; font-weight: 700;
+        }
+        
+        /* Fixed Margins: Top is far, Bottom is moved UP */
+        .top-left { top: 60px; left: 35px; } 
+        .top-right { top: 60px; right: 35px; } 
+        .bottom-left { bottom: 45px; left: 35px; } /* Moved UP from 15px */
+        .bottom-right { bottom: 45px; right: 35px; } /* Moved UP from 15px */
+        
+        .side-text-left { top: 50%; left: 108px; transform: translateY(-50%) rotate(-90deg); }
+        .side-text-top { top: 120px; left: 50%; transform: translateX(-50%); }
+
+        /* --- LOADING CORE --- */
+        #loading-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .loading-animation-wrapper { width: 100%; max-width: 600px; padding: 0 20px; }
+
+        .serial-number {
+            font-family: 'Orbitron'; font-size: 10px; color: var(--brand-green);
+            letter-spacing: 5px; margin-bottom: 12px; font-weight: 900;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .main-progress-wrap {
+            position: relative; width: 100%; height: 60px;
+            border: 1px solid var(--ui-border); display: flex; align-items: center;
+            padding: 0 20px; background: rgba(74, 222, 128, 0.03);
+        }
+
+        .loading-bar-core {
+            height: 2px; background: var(--brand-green); width: 0%;
+            box-shadow: 0 0 20px var(--brand-green); position: relative;
+        }
+
+        .loading-bar-core::after {
+            content: ''; position: absolute; right: 0; top: -5px; bottom: -5px;
+            width: 2px; background: #fff; box-shadow: 0 0 15px #fff;
+        }
+
+        .data-readout {
+            display: flex; justify-content: space-between; margin-top: 18px;
+            font-size: 11px; color: var(--brand-green); font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .big-pct {
+            position: absolute; right: 0; bottom: 85px;
+            font-family: 'Orbitron'; font-size: 130px; font-weight: 900;
+            color: rgba(74, 222, 128, 0.08); pointer-events: none; line-height: 1;
+        }
+
+        #cursor { 
+            position: fixed; width: 8px; height: 8px; background: var(--brand-green); 
+            border-radius: 50%; pointer-events: none; z-index: 10000; 
+            box-shadow: 0 0 15px var(--brand-green); transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+
+<div id="redirect-overlay">
+    <div class="glitch-text">DEVELOPERROY</div>
+</div>
+
+<div id="cursor"></div>
+
+<div class="ui-label top-left">SYS_REF: 009x-A</div>
+<div class="ui-label top-right">G_OS // V.5.0</div>
+<div class="ui-label bottom-left">LOC: BOLOGNA_IT</div>
+<div class="ui-label bottom-right">STATUS: STABLE</div>
+
+<div class="ui-label side-text-left">ACTIVE_ARCHITECTURE</div>
+<div class="ui-label side-text-top">UPLINK_PROTOCOL_ESTABLISHED</div>
+
+<svg id="drawingSvg">
+    <rect id="outerRect" class="draw-path" x="25" y="25" rx="0" ry="0"/>
+    <line id="topLine" class="draw-path"/>
+    <line id="sidebarLine" class="draw-path"/>
+    <line id="bottomLine" class="draw-path"/>
+</svg>
+
+<div id="loading-overlay">
+    <div class="loading-animation-wrapper">
+        <div class="serial-number">CORE_UPLINK_SEQUENCE</div>
+        
+        <div class="main-progress-wrap">
+            <div class="loading-bar-core" id="bar"></div>
+            <div class="big-pct" id="big-pct">00</div>
+        </div>
+
+        <div class="data-readout">
+            <div id="status">INITIALIZING_PROTOCOL...</div>
+            <div id="small-pct">0% COMPLETE</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', (e) => {
+        gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+    });
+
+    function setupDrawing() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const outerRect = document.getElementById('outerRect');
+        const topLine = document.getElementById('topLine');
+        const sidebarLine = document.getElementById('sidebarLine');
+        const bottomLine = document.getElementById('bottomLine');
+
+        outerRect.setAttribute('width', w - 50);
+        outerRect.setAttribute('height', h - 50);
+
+        topLine.setAttribute('x1', '25'); topLine.setAttribute('y1', '100');
+        topLine.setAttribute('x2', w - 25); topLine.setAttribute('y2', '100');
+
+        sidebarLine.setAttribute('x1', '100'); sidebarLine.setAttribute('y1', '100');
+        sidebarLine.setAttribute('x2', '100'); sidebarLine.setAttribute('y2', h - 85);
+
+        bottomLine.setAttribute('x1', '25'); bottomLine.setAttribute('y1', h - 85);
+        bottomLine.setAttribute('x2', w - 25); bottomLine.setAttribute('y2', h - 85);
+
+        [outerRect, topLine, sidebarLine, bottomLine].forEach(path => {
+            const length = path.getTotalLength();
+            path.style.strokeDasharray = length;
+            path.style.strokeDashoffset = length;
+        });
+
+        const tl = gsap.timeline();
+        tl.from(".ui-label", { opacity: 0, duration: 1, stagger: 0.1 })
+          .to(outerRect, { strokeDashoffset: 0, duration: 2, ease: "power2.inOut" }, 0)
+          .to([topLine, sidebarLine, bottomLine], { strokeDashoffset: 0, duration: 1, stagger: 0.2 }, "-=1")
+          .add(() => startLoading());
+    }
+
+    function startLoading() {
+        let progress = { val: 0 };
+        const bar = document.getElementById('bar');
+        const bigPct = document.getElementById('big-pct');
+        const smallPct = document.getElementById('small-pct');
+        const statusText = document.getElementById('status');
+        const statusUpdates = ["PARSING_MANIFEST", "SYNCING_CLUSTERS", "MAPPING_NEURAL", "DECRYPTING_LAYERS", "ESTABLISHING"];
+
+        gsap.to(progress, {
+            val: 100,
+            duration: 4.5,
+            ease: "expo.inOut",
+            onUpdate: () => {
+                const p = Math.floor(progress.val);
+                bar.style.width = p + "%";
+                smallPct.innerText = p + "% COMPLETE";
+                bigPct.innerText = String(p).padStart(2, '0');
+                statusText.innerText = statusUpdates[Math.min(Math.floor((p/100)*statusUpdates.length), statusUpdates.length-1)];
+            },
+            onComplete: () => {
+                gsap.to("#redirect-overlay", { 
+                    clipPath: "circle(150% at 50% 50%)", 
+                    duration: 1.5, 
+                    ease: "power4.inOut",
+                    onComplete: () => {
+                        setTimeout(() => { window.location.href = "main.html"; }, 800);
+                    }
+                });
+            }
+        });
+    }
+
+    window.addEventListener('load', setupDrawing);
+    window.addEventListener('resize', setupDrawing);
+</script>
+</body>
+</html>

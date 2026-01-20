@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developeroy / Contact </title>
+    <link rel="icon" type="image/png" href="img/faviocn.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --brand-green: #4ade80; 
+            --accent-soft: rgba(74, 222, 128, 0.15);
+            --bg-color: #050505;
+        }
+
+        /* --- SCROLLBAR REMOVAL --- */
+        html, body {
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+        }
+
+        /* --- IMMERSIVE BACKGROUND --- */
+        .ambient-glow {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, var(--accent-soft) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, var(--accent-soft) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .bg-scrolling-container {
+            position: fixed; top: 40%; left: 0; width: 100%; transform: translateY(-50%);
+            pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .bg-text-single {
+            font-family: 'Orbitron'; font-weight: 900; font-size: 28vh;
+            color: var(--brand-green); opacity: 0.03; white-space: nowrap; line-height: 1;
+            filter: blur(4px); text-transform: uppercase;
+        }
+
+        /* UI FRAME */
+        .ui-frame {
+            position: fixed; inset: 10px; border: 1px solid rgba(74, 222, 128, 0.1);
+            z-index: 100; pointer-events: none; display: flex; flex-direction: column;
+        }
+        @media (min-width: 1024px) { .ui-frame { inset: 15px; } }
+
+        .mono { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; }
+
+        /* SIDEBAR RESTORED */
+        .sidebar { 
+            width: 80px; border-right: 1px solid rgba(255,255,255,0.1); 
+            height: 100%; display: none; flex-direction: column; 
+            align-items: center; padding-top: 130px; gap: 45px; 
+            pointer-events: auto; background: rgba(5,5,5,0.2);
+        }
+        @media (min-width: 1024px) { .sidebar { display: flex; } }
+
+        .sidebar-icon {
+            width: 24px; height: 24px; color: rgba(255,255,255,0.2);
+            transition: all 0.3s ease; cursor: pointer;
+        }
+        .sidebar-icon:hover, .sidebar-icon.active { color: var(--brand-green); transform: scale(1.2); }
+
+        /* MOBILE MENU */
+        #mobile-fullscreen-menu {
+            position: fixed; inset: 0; background: #050505; z-index: 4000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 40px; transform: translateX(100%); transition: transform 0.4s ease-in-out;
+        }
+        #mobile-fullscreen-menu.active { transform: translateX(0); }
+
+        .top-nav {
+            height: 80px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 25px; pointer-events: auto; background: transparent;
+        }
+
+        .bottom-bar {
+            height: 50px; border-top: 1px solid rgba(255,255,255,0.1); 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 25px; pointer-events: auto; background: transparent;
+        }
+
+        section {
+            min-height: 100vh; padding: 120px 5% 50px 5%;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 10;
+        }
+        @media (min-width: 1024px) { section { padding-left: 120px; } }
+
+        .contact-card {
+            background: rgba(74, 222, 128, 0.03);
+            border: 1px solid var(--brand-green);
+            width: 100%; max-width: 550px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+        }
+
+        .contact-link {
+            display: flex; align-items: center; gap: 20px;
+            padding: 30px; border-bottom: 1px solid rgba(74, 222, 128, 0.2);
+            transition: all 0.3s ease; text-decoration: none; color: white;
+        }
+        .contact-link:last-of-type { border-bottom: none; }
+        .contact-link:hover { background: var(--accent-soft); padding-left: 40px; color: var(--brand-green); }
+
+        .scanline {
+            width: 100%; height: 100px;
+            background: linear-gradient(to bottom, transparent, var(--brand-green), transparent);
+            position: absolute; opacity: 0.1; pointer-events: none; top: -100px;
+        }
+
+        .dream-section {
+            min-height: 100vh; flex-direction: column; text-align: center;
+            background: linear-gradient(to bottom, transparent, rgba(74, 222, 128, 0.05));
+        }
+        .big-text {
+            font-family: 'Orbitron'; font-weight: 900;
+            font-size: clamp(2.5rem, 8vw, 9rem); line-height: 0.85;
+            letter-spacing: -0.05em; text-transform: uppercase;
+        }
+        .glitch-accent { color: var(--brand-green); text-shadow: 0 0 20px rgba(74, 222, 128, 0.4); }
+
+        .guarantee-text {
+            font-family: 'JetBrains Mono'; font-size: 11px; color: var(--brand-green);
+            opacity: 0.7; text-transform: uppercase; letter-spacing: 2px;
+            margin-top: 50px; max-width: 500px; font-weight: bold; padding: 0 20px;
+        }
+
+        .init-btn {
+            margin-top: 30px; display: inline-block; padding: 18px 45px; 
+            background: var(--brand-green); color: #020a05; font-weight: 900; 
+            font-family: 'Orbitron'; letter-spacing: 2px; transition: 0.3s;
+            pointer-events: auto;
+        }
+        .init-btn:hover { background: white; color: black; transform: scale(1.05); }
+
+        #cursor-dot {
+            position: fixed; width: 8px; height: 8px; background: var(--brand-green);
+            border-radius: 50%; pointer-events: none; z-index: 10000;
+            box-shadow: 0 0 15px var(--brand-green); display: none;
+        }
+        @media (min-width: 1024px) { #cursor-dot { display: block; } }
+    </style>
+</head>
+<body>
+
+<div id="cursor-dot"></div>
+<div class="ambient-glow"></div>
+
+<div class="bg-scrolling-container">
+    <div class="bg-text-single" id="main-scroller">DEVELOPER ROY • DEVELOPER ROY • DEVELOPER ROY • DEVELOPER ROY • </div>
+</div>
+
+<div id="mobile-fullscreen-menu" class="mono">
+    <a href="main.html" class="text-white text-2xl mb-6">HOME</a>
+    <a href="services.html" class="text-white text-2xl mb-6">SERVICES</a>
+    <a href="cards.html" class="text-white text-2xl mb-6">WORK</a>
+    <a href="contact.html" class="text-brand-green text-2xl mb-6">CONTACT</a>
+    <button onclick="toggleMenu()" class="mt-10 text-white/30 text-sm tracking-widest">[ CLOSE_PROTOCOL ]</button>
+</div>
+
+<div class="ui-frame">
+    <div class="top-nav mono uppercase">
+        <div class="flex items-center gap-4">
+            <div class="w-8 h-8 lg:w-10 lg:h-10 bg-[#4ade80] flex items-center justify-center rounded-sm">
+                <span class="text-black font-black text-[14px] lg:text-[18px]">R</span>
+            </div>
+            <span class="hidden md:block text-[10px] opacity-40">DEVELOPERROY / CONTACT</span>
+        </div>
+      <div class="tracking-[0.2em] font-medium text-sm text-white/70 -translate-x-[50px]">
+    CONTACT ME
+</div>
+
+        <button onclick="toggleMenu()" class="p-1 pointer-events-auto"><i data-lucide="menu" class="w-6 h-6"></i></button>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden">
+        <div class="sidebar">
+            <a href="main.html"><i data-lucide="home" class="sidebar-icon"></i></a>
+            <a href="services.html"><i data-lucide="layers" class="sidebar-icon"></i></a>
+            <a href="cards.html"><i data-lucide="cpu" class="sidebar-icon"></i></a>
+            <a href="contact.html"><i data-lucide="mail" class="sidebar-icon active"></i></a>
+        </div>
+    </div>
+
+    <div class="bottom-bar mono text-[10px]">
+        <div class="flex items-center gap-8">
+            <span class="text-brand-green opacity-50 uppercase tracking-widest hidden md:block">Encrypted_Link</span>
+            <span class="text-brand-green font-bold uppercase">Location: India // CU</span>
+        </div>
+        <div class="text-brand-green opacity-50 tracking-[0.2em]">© 2026 PROTOCOL_OS</div>
+    </div>
+</div>
+
+<main>
+    <section>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full max-w-6xl items-center">
+            <div>
+                <div class="mono text-brand-green mb-4 tracking-[0.6em] font-bold text-lg">05</div>
+                <h2 class="text-6xl lg:text-8xl font-black font-['Orbitron'] leading-[0.85] mb-8 tracking-tighter uppercase">CONTACT<br>GATEWAY</h2>
+                <p class="text-white/60 text-sm leading-loose uppercase tracking-[0.2em] max-w-md">
+                    Handshake established. Direct communication line to the full-stack architectural core is now open.
+                </p>
+            </div>
+
+            <div class="contact-card">
+                <div class="scanline" id="scan"></div>
+                
+                <a href="mailto:developerroyhub@gmail.com" class="contact-link group">
+                    <i data-lucide="mail" class="w-6 h-6 text-brand-green"></i>
+                    <div>
+                        <div class="text-[10px] text-brand-green/50 uppercase tracking-widest">Email_Address</div>
+                        <div class="text-sm lg:text-lg font-bold group-hover:text-white transition-colors">developerroyhub@gmail.com</div>
+                    </div>
+                </a>
+
+                <a href="https://www.linkedin.com/in/papan-roy-778a94292?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" class="contact-link group">
+                    <i data-lucide="linkedin" class="w-6 h-6 text-brand-green"></i>
+                    <div>
+                        <div class="text-[10px] text-brand-green/50 uppercase tracking-widest">Professional_Network</div>
+                        <div class="text-sm lg:text-lg font-bold group-hover:text-white transition-colors">LINKEDIN</div>
+                    </div>
+                </a>
+
+                <div class="contact-link">
+                    <i data-lucide="map-pin" class="w-6 h-6 text-brand-green"></i>
+                    <div>
+                        <div class="text-[10px] text-brand-green/50 uppercase tracking-widest">Operational_Base</div>
+                        <div class="text-sm lg:text-lg font-bold">INDIA , CU</div>
+                    </div>
+                </div>
+
+                <div class="m-6 p-6 border border-dashed border-brand-green/20 rounded-lg bg-brand-green/[0.02]">
+                    <div class="flex items-center gap-3 text-brand-green mb-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span class="text-[10px] font-bold uppercase tracking-widest">Secure Handshake</span>
+                    </div>
+                    <p class="text-[11px] text-brand-green/40 uppercase">Encrypted transmission active. Response expected within 24 hours.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dream-section">
+        <div class="big-text text-white/90">READY TO</div>
+        <div class="big-text glitch-accent">BUILD YOUR</div>
+        <div class="big-text text-white/90">DREAM?</div>
+        
+        <div class="flex flex-col items-center">
+            <p class="guarantee-text">
+                WE GIVE 99% GUARANTEE OF THE BEST PRODUCT BUILD • FULL SATISFACTION ASSURED • PREMIUM ARCHITECTURE
+            </p>
+            
+            <a href="mailto:developerroyhub@gmail.com" class="init-btn uppercase">
+                Send An Email
+            </a>
+            
+            <div class="mt-8 mono text-[10px] text-brand-green/30 uppercase tracking-[0.5em]">
+                System_Status: Online // Master_Core: Roy
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    lucide.createIcons();
+    gsap.registerPlugin(ScrollTrigger);
+    
+    const cursor = document.getElementById('cursor-dot');
+    document.addEventListener('mousemove', (e) => {
+        gsap.to(cursor, { x: e.clientX - 4, y: e.clientY - 4, duration: 0.1 });
+    });
+
+    function toggleMenu() {
+        document.getElementById('mobile-fullscreen-menu').classList.toggle('active');
+    }
+
+    gsap.to("#scan", {
+        top: "100%",
+        duration: 3,
+        repeat: -1,
+        ease: "none"
+    });
+
+    gsap.to("#main-scroller", {
+        xPercent: -50,
+        duration: 35,
+        repeat: -1,
+        ease: "none"
+    });
+
+    gsap.from(".big-text", {
+        scrollTrigger: {
+            trigger: ".dream-section",
+            start: "top 80%",
+        },
+        y: 80,
+        opacity: 0,
+        stagger: 0.15,
+        duration: 1,
+        ease: "power4.out"
+    });
+</script>
+</body>
+</html>

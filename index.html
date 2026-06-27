@@ -8499,6 +8499,21 @@ window.addEventListener('scroll', function() {
     return p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
   }
 
+  function easedInverse(y) {
+    // Numerically invert eased(p) * totalHeight = y  →  p
+    if (totalHeight <= 0) return 0;
+    var target = Math.min(Math.max(y / totalHeight, 0), 1);
+    var p = target; // initial guess
+    for (var i = 0; i < 20; i++) {
+      var f  = eased(p) - target;
+      var df = p < 0.5 ? 4 * p : 4 - 4 * p;
+      if (Math.abs(df) < 1e-10) break;
+      p -= f / df;
+      p = Math.min(Math.max(p, 0), 1);
+    }
+    return p;
+  }
+
   function tick(currentTime) {
     if (!startTime) startTime = currentTime;
     var totalElapsed = elapsed + (currentTime - startTime);
@@ -8531,7 +8546,13 @@ window.addEventListener('scroll', function() {
     isPaused    = false;
     startTime   = null;
     totalHeight = document.body.scrollHeight - window.innerHeight;
-    rafId       = requestAnimationFrame(tick);
+
+    // Sync elapsed to current scroll position so animation picks up from here
+    var currentY = window.scrollY || window.pageYOffset;
+    var p = easedInverse(currentY);
+    elapsed = p * duration;
+
+    rafId = requestAnimationFrame(tick);
   }
 
   function beginScrolling() {

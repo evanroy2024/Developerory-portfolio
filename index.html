@@ -6985,31 +6985,34 @@ setInterval(wcTick, 1000);
     <span style="position:absolute; bottom:-6px; left:50%; translate:-50%; width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:6px solid #fff;"></span>
   </div>
 
-  <a class="tn-atom" href="https://employeetest.pythonanywhere.com/wedding/" style="text-decoration: none; display: flex; justify-content: center; align-items: center;">
-    <div class="tn-atom__button-content" style="
-      background: #fff;
-      color: #66021F;
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 6px;
-      text-transform: uppercase;
-      border-radius: 50px;
-      padding: 18px 52px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      outline: 2px solid #fff;
-      outline-offset: 4px;
-      animation: wc-pulse 2s ease-in-out infinite;
-    ">
 
-      <span class="tn-atom__button-text">Join</span>
-    </div>
-    
-    <span class="tn-atom__button-border"></span>
-  </a>
+<a class="tn-atom" href="https://employeetest.pythonanywhere.com/wedding/" style="text-decoration: none; display: flex; justify-content: center; align-items: center;">
+  <div class="tn-atom__button-content" style="
+    background: #fff;
+    color: #66021F;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    border-radius: 50px;
+    padding: 18px 52px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: 2px solid #fff;
+    outline-offset: 4px;
+    animation: wc-pulse 2s ease-in-out infinite, wc-glow 2s ease-in-out infinite;
+    transition: transform 0.15s ease, background 0.15s ease;
+  "
+  onmouseover="this.style.transform='scale(1.05)'; this.style.background='#f5ede0';"
+  onmouseout="this.style.transform='scale(1)'; this.style.background='#fff';"
+  >
+    <span class="tn-atom__button-text">Join</span>
+  </div>
+  <span class="tn-atom__button-border"></span>
+</a>
 </div>
 
 <style>
@@ -8417,27 +8420,30 @@ window.addEventListener('scroll', function() {
     <!-- YES / NO row -->
     <div style="display: flex; gap: 10px; justify-content: center;">
 
-      <a href="https://employeetest.pythonanywhere.com/wedding" style="
-        flex: 1;
-        display: block;
-        background: linear-gradient(135deg, #d4aa72 0%, #a07840 50%, #c8956a 100%);
-        color: #fff;
-        font-family: Georgia, serif;
-        font-size: 10px;
-        letter-spacing: 5px;
-        text-transform: uppercase;
-        font-weight: 700;
-        text-decoration: none;
-        border-radius: 50px;
-        padding: 15px 0;
-        border: none;
-        box-shadow: 0 4px 24px rgba(180,120,50,0.45), inset 0 1px 0 rgba(255,235,190,0.25);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        animation: wc-gold-pulse 2.8s ease-in-out infinite;
-        text-align: center;
-      "
-      onmouseover="this.style.transform='scale(1.04)'; this.style.boxShadow='0 6px 30px rgba(180,120,50,0.6), inset 0 1px 0 rgba(255,235,190,0.25)';"
-      onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 24px rgba(180,120,50,0.45), inset 0 1px 0 rgba(255,235,190,0.25)';">Yes</a>
+      <button
+onclick="fetch('https://employeetest.pythonanywhere.com/count/', {method:'GET', mode:'no-cors'}); wcClosePopup();"
+style="
+flex:1;
+display:block;
+background:linear-gradient(135deg,#d4aa72 0%,#a07840 50%,#c8956a 100%);
+color:#fff;
+font-family:Georgia,serif;
+font-size:10px;
+letter-spacing:5px;
+text-transform:uppercase;
+font-weight:700;
+border:none;
+border-radius:50px;
+padding:15px 0;
+cursor:pointer;
+box-shadow:0 4px 24px rgba(180,120,50,.45), inset 0 1px 0 rgba(255,235,190,.25);
+transition:transform .2s ease, box-shadow .2s ease;
+animation:wc-gold-pulse 2.8s ease-in-out infinite;
+"
+onmouseover="this.style.transform='scale(1.04)'"
+onmouseout="this.style.transform='scale(1)'">
+Yes
+</button>
 
       <button onclick="wcClosePopup()" style="
         flex: 1;
@@ -8645,7 +8651,19 @@ window.addEventListener('scroll', function() {
 
 })();
 </script>
-  <script
+<style>
+@keyframes wc-bump {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+
+a[href="https://employeetest.pythonanywhere.com/wedding/"] .tn-atom__button-content {
+  animation: wc-bump 0.8s ease-in-out infinite !important;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.9), 0 0 30px 8px rgba(255,255,255,0.5) !important;
+}
+</style> 
+
+<script
     type="text/javascript">if (!window.mainTracker) { window.mainTracker = 'tilda'; }
       window.tildastatcookie = 'no'; setTimeout(function () { (function (d, w, k, o, g) { var n = d.getElementsByTagName(o)[0], s = d.createElement(o), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.key = k; s.id = "tildastatscript"; s.src = g; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, 'f1858a1c1e1fba20f7e23d6ee739727b', 'script', 'https://static.tildacdn.net/js/tilda-stat-1.0.min.js'); }, 2000);</script>
 </body>

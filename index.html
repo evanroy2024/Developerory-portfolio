@@ -6928,7 +6928,7 @@ setInterval(wcTick, 1000);
         }
       </style>
       <div class="t396">
-        <div class="t396__artboard" data-artboard-recid="2003860951" data-artboard-screens="320,480,640,960,1200"
+        <!-- <div class="t396__artboard" data-artboard-recid="2003860951" data-artboard-screens="320,480,640,960,1200"
           data-artboard-height="208" data-artboard-valign="center" data-artboard-upscale="grid"
           data-artboard-height-res-320="208" data-artboard-height-res-480="208" data-artboard-height-res-640="208"
           data-artboard-height-res-960="208">
@@ -7046,7 +7046,7 @@ setInterval(wcTick, 1000);
   obs.observe(wrap);
 })();
 </script>
-        </div>
+        </div> -->
       </div>
 <div id="wc-map-section" style="font-family: Georgia, 'Times New Roman', serif; background: #66021F; color: #f5e6e6; padding: 0 1.5rem 0.8rem; text-align: center; max-width: 420px; margin: 0 auto; box-sizing: border-box;">
 
@@ -8663,6 +8663,160 @@ a[href="https://employeetest.pythonanywhere.com/wedding/"] .tn-atom__button-cont
 }
 </style> 
 
+<div id="wc-final-overlay" style="
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+">
+  <div id="wc-final-box" style="
+    background: linear-gradient(160deg, rgba(85,4,22,0.99) 0%, rgba(50,1,12,1) 100%);
+    border: 0.5px solid rgba(220,175,120,0.3);
+    border-radius: 24px;
+    padding: 3.2rem 2.5rem 2.5rem;
+    max-width: 300px;
+    width: 88%;
+    text-align: center;
+    font-family: Georgia, 'Times New Roman', serif;
+    box-shadow: 0 0 0 1px rgba(220,160,100,0.07), 0 2px 0 1px rgba(220,160,100,0.13), 0 50px 100px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,220,160,0.08);
+    transform: translateY(28px) scale(0.95);
+    transition: transform 0.6s cubic-bezier(0.16,1,0.3,1), opacity 0.6s ease;
+    opacity: 0;
+    position: relative;
+    overflow: visible;
+  ">
+
+    <svg style="position:absolute;top:14px;left:14px;opacity:0.25;" width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <path d="M1 21 L1 1 L21 1" stroke="rgba(200,160,100,1)" stroke-width="0.8" fill="none"/>
+      <circle cx="1" cy="1" r="1.5" fill="rgba(200,160,100,1)"/>
+    </svg>
+    <svg style="position:absolute;top:14px;right:14px;opacity:0.25;" width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <path d="M21 21 L21 1 L1 1" stroke="rgba(200,160,100,1)" stroke-width="0.8" fill="none"/>
+      <circle cx="21" cy="1" r="1.5" fill="rgba(200,160,100,1)"/>
+    </svg>
+    <svg style="position:absolute;bottom:14px;left:14px;opacity:0.25;" width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <path d="M1 1 L1 21 L21 21" stroke="rgba(200,160,100,1)" stroke-width="0.8" fill="none"/>
+      <circle cx="1" cy="21" r="1.5" fill="rgba(200,160,100,1)"/>
+    </svg>
+    <svg style="position:absolute;bottom:14px;right:14px;opacity:0.25;" width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <path d="M21 1 L21 21 L1 21" stroke="rgba(200,160,100,1)" stroke-width="0.8" fill="none"/>
+      <circle cx="21" cy="21" r="1.5" fill="rgba(200,160,100,1)"/>
+    </svg>
+
+    <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%) translateY(-50%); width: 60px; height: 60px; background: linear-gradient(145deg, #d4aa72, #8a5a2e); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid rgba(50,1,12,1); box-shadow: 0 0 0 1px rgba(200,160,100,0.3), 0 6px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,235,190,0.3);">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+        <path d="M12 21C12 21 3 14.5 3 8.5C3 6 5 4 7.5 4C9.24 4 10.91 5.01 12 6.5C13.09 5.01 14.76 4 16.5 4C19 4 21 6 21 8.5C21 14.5 12 21 12 21Z" fill="rgba(255,255,255,0.95)"/>
+      </svg>
+    </div>
+
+    <p style="font-size: 8.5px; letter-spacing: 6.5px; text-transform: uppercase; color: rgba(200,160,100,0.6); margin: 1.4rem 0 0.8rem;">Before you go</p>
+
+    <div style="margin: 0.8rem 0 1rem; display: flex; align-items: center; gap: 8px;">
+      <div style="flex:1; height:0.5px; background: linear-gradient(to right, transparent, rgba(200,160,100,0.4));"></div>
+      <svg width="14" height="14" viewBox="0 0 14 14">
+        <polygon points="7,1 8.2,5 12,5 9,7.5 10.2,11.5 7,9 3.8,11.5 5,7.5 2,5 5.8,5" fill="rgba(200,160,100,0.6)"/>
+      </svg>
+      <div style="flex:1; height:0.5px; background: linear-gradient(to left, transparent, rgba(200,160,100,0.4));"></div>
+    </div>
+
+    <p style="font-size: 26px; font-weight: 300; letter-spacing: 1px; color: #fff; margin: 0.4rem 0 0; line-height: 1.25; text-shadow: 0 2px 20px rgba(200,130,60,0.2);">Confirm your</p>
+    <p style="font-size: 26px; font-weight: 300; letter-spacing: 1px; color: rgba(210,165,95,0.95); margin: 0 0 1.2rem; line-height: 1.25; text-shadow: 0 2px 20px rgba(200,130,60,0.35);">attendance</p>
+
+    <p id="wc-final-text" style="font-size: 13px; font-weight: 400; color: rgba(240,215,190,0.82); letter-spacing: 0.4px; line-height: 1.9; margin: 0 0 2rem; font-style: italic;">
+      To help us prepare for a joyful celebration,<br>kindly confirm your attendance.
+    </p>
+
+    <div id="wc-final-buttons" style="display: flex; gap: 10px; justify-content: center;">
+      <button id="wc-final-yes" onclick="wcFinalConfirm();" style="
+        flex:1; display:block;
+        background:linear-gradient(135deg,#d4aa72 0%,#a07840 50%,#c8956a 100%);
+        color:#fff; font-family:Georgia,serif; font-size:10px; letter-spacing:5px;
+        text-transform:uppercase; font-weight:700; border:none; border-radius:50px;
+        padding:15px 0; cursor:pointer;
+        box-shadow:0 4px 24px rgba(180,120,50,.45), inset 0 1px 0 rgba(255,235,190,.25);
+        transition:transform .2s ease;
+        animation: wc-final-pulse 2.8s ease-in-out infinite;
+      " onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">Join</button>
+
+      <button id="wc-final-no" onclick="wcFinalDecline();" style="
+        flex:1; display:block; background: rgba(255,255,255,0.04);
+        color: rgba(210,175,130,0.7); font-family: Georgia, serif; font-size: 10px;
+        letter-spacing: 4px; text-transform: uppercase; font-weight: 700;
+        border: 0.5px solid rgba(200,160,110,0.25); border-radius: 50px;
+        padding: 15px 0; cursor: pointer; transition: all 0.3s ease;
+      " onmouseover="this.style.borderColor='rgba(200,160,110,0.5)'; this.style.color='rgba(220,185,145,0.95)'; this.style.background='rgba(255,255,255,0.07)';"
+         onmouseout="this.style.borderColor='rgba(200,160,110,0.25)'; this.style.color='rgba(210,175,130,0.7)'; this.style.background='rgba(255,255,255,0.04)';">Later</button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes wc-final-pulse {
+  0%, 100% { box-shadow: 0 4px 24px rgba(180,120,50,0.45), inset 0 1px 0 rgba(255,235,190,0.25), 0 0 0 0 rgba(200,160,80,0.3); }
+  50% { box-shadow: 0 4px 24px rgba(180,120,50,0.6), inset 0 1px 0 rgba(255,235,190,0.25), 0 0 0 10px rgba(200,160,80,0); }
+}
+</style>
+
+<script>
+(function () {
+  var stage = 1;
+  var shown = false;
+  var JOIN_URL = 'https://employeetest.pythonanywhere.com/wedding/';
+
+  var overlay = document.getElementById('wc-final-overlay');
+  var box     = document.getElementById('wc-final-box');
+  var text    = document.getElementById('wc-final-text');
+
+  function openPopup() {
+    overlay.style.pointerEvents = 'all';
+    overlay.style.opacity = '1';
+    box.style.opacity = '1';
+    box.style.transform = 'translateY(0) scale(1)';
+  }
+
+  function closePopup() {
+    overlay.style.opacity = '0';
+    box.style.opacity = '0';
+    box.style.transform = 'translateY(28px) scale(0.95)';
+    setTimeout(function () { overlay.style.pointerEvents = 'none'; }, 600);
+  }
+
+  window.wcFinalConfirm = function () {
+    window.location.href = JOIN_URL;
+  };
+
+  window.wcFinalDecline = function () {
+    if (stage === 1) {
+      stage = 2;
+      text.innerHTML = 'We would truly love to have you there.<br>Your presence would mean the world to us —<br>please reconsider joining us.';
+      openPopup();
+    } else {
+      closePopup();
+    }
+  };
+
+  function checkScrollEnd() {
+    if (shown) return;
+    var scrolledToBottom = (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 10);
+    if (scrolledToBottom) {
+      shown = true;
+      openPopup();
+      window.removeEventListener('scroll', checkScrollEnd);
+    }
+  }
+
+  window.addEventListener('scroll', checkScrollEnd, { passive: true });
+  checkScrollEnd();
+})();
+</script>
 <script
     type="text/javascript">if (!window.mainTracker) { window.mainTracker = 'tilda'; }
       window.tildastatcookie = 'no'; setTimeout(function () { (function (d, w, k, o, g) { var n = d.getElementsByTagName(o)[0], s = d.createElement(o), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.key = k; s.id = "tildastatscript"; s.src = g; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, 'f1858a1c1e1fba20f7e23d6ee739727b', 'script', 'https://static.tildacdn.net/js/tilda-stat-1.0.min.js'); }, 2000);</script>

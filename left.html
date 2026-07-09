@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MIDDLE — Reveal</title>
+
+<script>
+  window.ASSETS = {
+    MODEL_PATH: './middle.glb',
+    BG_TEXTURE_PATH: './red.png'
+  };
+
+  window.VARIANTS = {
+    black: { model: './middle.glb', bg: './red.png' },
+    red:   { model: './right.glb',  bg: './red2.png' },
+    white: { model: './left.glb',   bg: './red3.png' }
+  };
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,700;1,400&family=Manrope:wght@200;300;400;500;600&family=Orbitron:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --void:#0c0505;
+    --blood:#5a0a0e;
+    --crimson:#ea2f3f;
+    --ash:#f6ede9;
+    --smoke:#240e0e;
+    --green-flash:#00ff66;
+    --grid-color: rgba(246, 237, 233, 0.06);
+    --cyan-flicker: #7cf7ff;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:auto; background: var(--void); }
+
+  body{
+    background:var(--void);
+    color:var(--ash);
+    font-family:'Manrope', sans-serif;
+    overflow-x:hidden;
+    cursor:default;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- Full-bleed square viewport frame ---------- */
+  #viewport-frame{
+    position: fixed;
+    inset: 14px;
+    z-index: 9;
+    border: 1px solid rgba(246, 237, 233, 0.09);
+    pointer-events: none;
+  }
+  #viewport-frame::before,
+  #viewport-frame::after{
+    content:'';
+    position:absolute;
+    width: 26px;
+    height: 26px;
+    border-color: var(--crimson);
+    border-style: solid;
+    opacity: 0.55;
+  }
+  #viewport-frame::before{
+    top: -1px; left: -1px;
+    border-width: 2px 0 0 2px;
+  }
+  #viewport-frame::after{
+    bottom: -1px; right: -1px;
+    border-width: 0 2px 2px 0;
+  }
+  .frame-tick{
+    position: fixed;
+    z-index: 9;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: rgba(246,237,233,0.28);
+    pointer-events: none;
+  }
+  .frame-tick.top-r{ top: 20px; right: 26px; }
+  .frame-tick.bottom-l{ bottom: 20px; left: 26px; }
+
+  /* ---------- Modern Deconstructed UI Elements ---------- */
+  .hud-bracket {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border-color: rgba(246, 237, 233, 0.25);
+    border-style: solid;
+    z-index: 8;
+    pointer-events: none;
+  }
+  .hud-bracket.tl { top: 32px; left: 4vw; border-width: 1px 0 0 1px; }
+  .hud-bracket.br { bottom: 32px; right: 4vw; border-width: 0 1px 1px 0; }
+  
+  .hud-crosshair {
+    position: fixed;
+    font-size: 10px;
+    color: rgba(234, 47, 63, 0.4);
+    font-weight: 300;
+    z-index: 8;
+    pointer-events: none;
+  }
+  .hud-crosshair.tr { top: 32px; right: 4vw; }
+  .hud-crosshair.bl { bottom: 32px; left: 4vw; }
+
+  .hud-line-v {
+    position: fixed;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--grid-color);
+    z-index: 4;
+    pointer-events: none;
+  }
+  .hud-line-v.left { left: 8vw; }
+  .hud-line-v.right { right: 8vw; }
+
+  /* ---------- Top Utility Navigation ---------- */
+  #site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    padding: 0 8vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 20;
+    pointer-events: none;
+  }
+  
+  .header-left {
+    pointer-events: auto;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    font-weight: 600;
+    color: var(--ash);
+    opacity: 0.9;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    pointer-events: auto;
+  }
+
+  .btn-buy {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--void);
+    background: var(--ash);
+    padding: 10px 24px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 1px solid var(--ash);
+  }
+  .btn-buy:hover {
+    background: transparent;
+    color: var(--ash);
+    box-shadow: 0 0 20px rgba(246, 237, 233, 0.15);
+  }
+
+  /* ---------- View in VR button ---------- */
+  .btn-vr {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ash);
+    background: transparent;
+    padding: 9px 20px;
+    font-weight: 600;
+    border: 1px solid rgba(124, 247, 255, 0.35);
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+    overflow: hidden;
+  }
+  .btn-vr::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background: linear-gradient(120deg, rgba(124,247,255,0.12), rgba(234,47,63,0.12));
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+  }
+  .btn-vr:hover{
+    border-color: rgba(124, 247, 255, 0.8);
+    box-shadow: 0 0 18px rgba(124, 247, 255, 0.25);
+    color: var(--cyan-flicker);
+  }
+  .btn-vr:hover::before{ transform: translateX(0%); }
+  .btn-vr svg{ width:14px; height:14px; position:relative; z-index:1; }
+  .btn-vr span.vr-btn-label{ position:relative; z-index:1; }
+
+  /* ---------- Liquid FX toggle button (crimson accent when active) ---------- */
+  .btn-liquid-fx.active{
+    border-color: rgba(234,47,63,0.75);
+    color: var(--crimson);
+    box-shadow: 0 0 18px rgba(234,47,63,0.28);
+  }
+  .btn-liquid-fx.active:hover{ color: var(--crimson); }
+
+  /* ---------- Liquid Architecture cursor-reveal overlay (optional FX, default OFF) ----------
+     Single layer: the canvas itself paints the dark veil AND punches an organic
+     transparent hole at the cursor (destination-out), so the real page underneath
+     (3D model, background, everything) shows directly through the hole — no
+     synthetic stand-in texture, and no second full-res compositing layer. */
+  #liquid-fx-canvas-wrap{
+    position: fixed;
+    inset: 0;
+    z-index: 16;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  #liquid-fx-canvas-wrap.active{ opacity: 1; }
+
+  #liquid-fx-canvas{
+    width: 100%;
+    height: 100%;
+    display: block;
+    filter: url("#organic-goo");
+    will-change: filter;
+  }
+
+  .audio-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 16px;
+    padding: 0 4px;
+  }
+  .audio-bar {
+    width: 2px;
+    height: 100%;
+    background: var(--ash);
+    opacity: 0.5;
+    transform-origin: bottom;
+    animation: pulseAudio 1.2s ease infinite alternate;
+  }
+  .audio-bar:nth-child(2) { animation-delay: 0.2s; height: 60%; }
+  .audio-bar:nth-child(3) { animation-delay: 0.4s; height: 80%; }
+  .audio-bar:nth-child(4) { animation-delay: 0.1s; height: 40%; }
+
+  @keyframes pulseAudio {
+    0% { transform: scaleY(0.3); }
+    100% { transform: scaleY(1); }
+  }
+
+  /* ---------- variant switch buttons (left middle, fixed) ---------- */
+  #color-switch{
+    position: fixed;
+    left: 3.2vw;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 21;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    pointer-events: auto;
+  }
+  #color-switch .switch-label{
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.35em;
+    color: rgba(246,237,233,0.35);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    margin-bottom: 4px;
+  }
+  .swatch-btn{
+    position: relative;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid rgba(246,237,233,0.25);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), border-color 0.35s ease, box-shadow 0.35s ease;
+    outline: none;
+  }
+  .swatch-btn.black{ background:#0a0505; }
+  .swatch-btn.red{ background: var(--crimson); }
+  .swatch-btn.white{ background: var(--ash); }
+
+  .swatch-btn::after{
+    content:'';
+    position:absolute;
+    inset: -7px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    transition: border-color 0.35s ease;
+  }
+  .swatch-btn:hover{ transform: scale(1.12); }
+  .swatch-btn.active{
+    box-shadow: 0 0 0 2px rgba(246,237,233,0.5), 0 0 16px rgba(234,47,63,0.35);
+  }
+  .swatch-btn.active::after{
+    border-color: rgba(246,237,233,0.35);
+  }
+  .swatch-btn.loading{
+    animation: swatchPulse 0.9s ease infinite;
+  }
+  @keyframes swatchPulse{
+    0%,100%{ opacity: 1; }
+    50%{ opacity: 0.4; }
+  }
+
+  /* ---------- background layer (red.png) ---------- */
+  #bg-layer{
+    position:fixed; 
+    inset:-20vh -20vw;
+    z-index:0;
+    background-image:
+      radial-gradient(120% 90% at 50% 25%, rgba(12,5,5,0) 0%, rgba(12,5,5,0.4) 75%, rgba(12,5,5,0.8) 100%),
+      url('./red.png');
+    background-size:cover;
+    background-position:center;
+    background-repeat:repeat;
+    filter:saturate(1.1) brightness(0.7);
+    will-change:transform;
+    transition: filter 0.6s ease;
+  }
+  #stage-glow{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(circle at 50% 46%, rgba(255,100,90,0.18), rgba(255,40,40,0.04) 45%, transparent 70%);
+    mix-blend-mode:screen;
+  }
+  #bg-grain{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 40%, rgba(12,5,5,0.6) 100%);
+  }
+
+  /* ---------- background ticker ---------- */
+  #ticker-wrap{
+    position:fixed; inset:0; z-index:1;
+    display:flex; flex-direction:column; justify-content:center;
+    gap:clamp(10px, 3vw, 30px);
+    overflow:hidden;
+    opacity:0;
+    pointer-events:none;
+    will-change:opacity;
+  }
+  .ticker-row{
+    display:flex; width:max-content; white-space:nowrap;
+    font-family:'Orbitron', sans-serif;
+    font-weight:800;
+    font-size:clamp(4rem, 12vw, 11rem);
+    letter-spacing:0.02em;
+    line-height:0.9;
+  }
+  .ticker-row span{ padding-right:0.3em; }
+  .ticker-row:nth-child(1){ animation:ticker-ltr 32s linear infinite; color:rgba(234,47,63,0.05); }
+  .ticker-row:nth-child(2){ animation:ticker-rtl 36s linear infinite; color:rgba(124,247,255,0.04); }
+  .ticker-row:nth-child(3){ animation:ticker-ltr 34s linear infinite; color:rgba(234,47,63,0.05); }
+
+  @keyframes ticker-ltr{ from{ transform:translateX(-50%); } to{ transform:translateX(0%); } }
+  @keyframes ticker-rtl{ from{ transform:translateX(0%); } to{ transform:translateX(-50%); } }
+
+  /* ---------- three.js canvas ---------- */
+  #webgl{
+    position:fixed; inset:0;
+    z-index:2;
+    width:100%; height:100%;
+    display:block;
+    /* changed from none -> auto so the model can be clicked and dragged to rotate.
+       All other UI elements sit at higher z-index with pointer-events:auto already
+       set explicitly, so this does not block any existing interaction. */
+    pointer-events:auto;
+    cursor: grab;
+    touch-action: none;
+  }
+  #webgl.dragging{ cursor: grabbing; }
+
+  /* ---------- loader ---------- */
+  #loader{
+    position:fixed; inset:0; z-index:50;
+    background:var(--void);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:18px;
+    transition:opacity 1s ease, visibility 1s ease;
+  }
+  #loader.hidden{ opacity:0; visibility:hidden; }
+  #loader.overlay-mode{
+    background: rgba(12,5,5,0.72);
+    backdrop-filter: blur(6px);
+  }
+  #loader .mark{
+    font-family:'Orbitron', sans-serif;
+    font-size:12px;
+    letter-spacing:0.6em;
+    color:var(--ash);
+    opacity:0.8;
+  }
+  #loader-bar{ width:180px; height:1px; background:rgba(239,230,226,0.1); overflow:hidden; }
+  #loader-fill{ width:0%; height:100%; background:var(--crimson); transition:width 0.2s ease; }
+
+  /* ---------- content spacers ---------- */
+  main{ position:relative; z-index:3; pointer-events:none; }
+  .spacer{ height:100vh; }
+
+  /* ---------- modern layout interface overlay ---------- */
+  #finale-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: 8vw 1fr 1fr 8vw;
+    grid-template-rows: 15vh 1fr auto 12vh;
+    padding: 0;
+    pointer-events: none;
+    opacity: 0;
+    will-change: opacity;
+  }
+
+  .editorial-block {
+    grid-row: 2;
+    pointer-events: auto;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    max-width: 420px;
+  }
+  .editorial-block.left-panel {
+    grid-column: 2;
+    justify-self: start;
+    border-left: 1px solid rgba(246, 237, 233, 0.05);
+  }
+  .editorial-block.right-panel {
+    grid-column: 3;
+    justify-self: end;
+    text-align: right;
+    border-right: 1px solid rgba(246, 237, 233, 0.05);
+  }
+
+  .meta-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--crimson);
+    margin-bottom: 16px;
+    font-weight: 700;
+    position: relative;
+    display: inline-block;
+  }
+  .meta-tag::before{
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--crimson);
+    margin-right: 8px;
+    box-shadow: 0 0 8px var(--crimson);
+    vertical-align: middle;
+  }
+
+  .editorial-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.5rem, 2.2vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    color: var(--ash);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    text-shadow: 0 0 24px rgba(234,47,63,0.25);
+  }
+
+  .editorial-body {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    line-height: 1.9;
+    color: rgba(246, 237, 233, 0.45);
+    letter-spacing: 0.03em;
+    font-weight: 400;
+  }
+
+  .finale-center-controls {
+    grid-column: 2 / span 2;
+    grid-row: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    padding-bottom: 4vh;
+    z-index: 12;
+  }
+
+  .name-input-container {
+    pointer-events: auto;
+    text-align: center;
+    position: relative;
+  }
+
+  .name-prompt {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(246, 237, 233, 0.3);
+    margin-bottom: 12px;
+  }
+
+  .editable-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.7rem, 3.4vw, 3.6rem);
+    font-weight: 700;
+    color: var(--ash);
+    border: none;
+    border-bottom: 1px solid rgba(246, 237, 233, 0.15);
+    padding: 0 24px 8px 24px;
+    outline: none;
+    display: inline-block;
+    min-width: 320px;
+    text-align: center;
+    transition: all 0.5s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 30px rgba(234,47,63,0.2);
+  }
+  .editable-name:focus {
+    border-bottom-color: var(--crimson);
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 30px rgba(234,47,63,0.5);
+  }
+
+  .btn{
+    pointer-events: auto;
+    display: inline-block;
+    padding: 16px 56px;
+    border: 1px solid rgba(246,237,233,0.2);
+    color: var(--ash);
+    text-decoration: none;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    font-weight: 500;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--ash);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -1;
+  }
+  .btn:hover{
+    color: var(--void);
+    border-color: var(--ash);
+  }
+  .btn:hover::before {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* ---------- full screen green flash transition effect ---------- */
+  #green-transition-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--green-flash);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    mix-blend-mode: difference;
+    transition: opacity 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  #green-transition-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ---------- scroll progress rail ---------- */
+  #rail{
+    position:fixed; top:50%; right:48px; transform:translateY(-50%);
+    z-index:10;
+    height:120px; width:1px;
+    background:rgba(239,230,226,0.1);
+  }
+  #rail-fill{
+    position:absolute; top:0; left:0; width:100%;
+    height:0%;
+    background:var(--crimson);
+  }
+
+  #brand{
+    position:fixed; bottom:42px; left:50%; transform: translateX(-50%); z-index:10;
+    font-family:'Orbitron', sans-serif;
+    font-weight: 500;
+    letter-spacing:0.5em;
+    font-size:11px;
+    color:var(--ash);
+    opacity:0.4;
+  }
+
+  /* =====================================================================
+     VR MODAL — futuristic "View in VR" popup
+     Sits above everything (z-index 200+). Does not touch any existing
+     element, id, or class used elsewhere in the page.
+  ===================================================================== */
+  #vr-modal-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(6, 2, 2, 0.86);
+    backdrop-filter: blur(12px) saturate(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.45s cubic-bezier(0.16,1,0.3,1), visibility 0.45s;
+  }
+  #vr-modal-overlay.open{
+    opacity: 1;
+    visibility: visible;
+  }
+
+  #vr-modal{
+    position: relative;
+    width: min(1040px, 94vw);
+    max-height: 90vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1.05fr 1.3fr;
+    background: linear-gradient(160deg, rgba(36,14,14,0.92), rgba(10,4,4,0.97));
+    border: 1px solid rgba(124, 247, 255, 0.22);
+    box-shadow:
+      0 0 0 1px rgba(234,47,63,0.08),
+      0 40px 100px rgba(0,0,0,0.65),
+      0 0 80px rgba(124,247,255,0.06) inset;
+    transform: translateY(24px) scale(0.97);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease;
+  }
+  #vr-modal-overlay.open #vr-modal{
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  /* animated holographic border sweep */
+  #vr-modal::before{
+    content:'';
+    position:absolute;
+    inset: -1px;
+    padding: 1px;
+    z-index: 0;
+    pointer-events: none;
+    background: conic-gradient(from var(--sweep-angle, 0deg), transparent 0%, rgba(124,247,255,0.55) 8%, transparent 16%, transparent 50%, rgba(234,47,63,0.5) 58%, transparent 66%, transparent 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: sweepBorder 5s linear infinite;
+  }
+  @keyframes sweepBorder{
+    from{ --sweep-angle: 0deg; }
+    to{ --sweep-angle: 360deg; }
+  }
+  @property --sweep-angle{
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  /* corner brackets to match the site's HUD language */
+  #vr-modal-inner-frame::before,
+  #vr-modal-inner-frame::after{
+    content:'';
+    position:absolute;
+    width: 22px;
+    height: 22px;
+    border-color: var(--cyan-flicker);
+    border-style: solid;
+    opacity: 0.7;
+    z-index: 3;
+  }
+  #vr-modal-inner-frame::before{ top:10px; left:10px; border-width:2px 0 0 2px; }
+  #vr-modal-inner-frame::after{ bottom:10px; right:10px; border-width:0 2px 2px 0; }
+
+  /* ---- left visual panel ---- */
+  .vr-visual-panel{
+    position: relative;
+    overflow: hidden;
+    background-color: #0a0303;
+    min-height: 320px;
+  }
+  .vr-visual-panel img{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(1.15) contrast(1.05) brightness(0.85);
+    opacity: 0.9;
+  }
+  .vr-visual-panel::after{
+    content:'';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(10,3,3,0.15) 0%, rgba(10,3,3,0.55) 75%, rgba(10,3,3,0.92) 100%),
+      linear-gradient(90deg, rgba(10,3,3,0.85) 0%, transparent 22%, transparent 100%),
+      repeating-linear-gradient(0deg, rgba(124,247,255,0.05) 0px, rgba(124,247,255,0.05) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode: normal;
+  }
+  .vr-scanline{
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(124,247,255,0.9), transparent);
+    box-shadow: 0 0 12px 2px rgba(124,247,255,0.6);
+    animation: vrScan 3.2s ease-in-out infinite;
+    z-index: 2;
+  }
+  @keyframes vrScan{
+    0%{ top: 6%; opacity: 0; }
+    8%{ opacity: 1; }
+    50%{ top: 92%; opacity: 1; }
+    58%{ opacity: 0; }
+    100%{ top: 92%; opacity: 0; }
+  }
+  .vr-visual-tag{
+    position: absolute;
+    left: 24px;
+    bottom: 22px;
+    z-index: 3;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(246,237,233,0.65);
+  }
+  .vr-visual-tag span{ color: var(--cyan-flicker); }
+  .vr-visual-reticle{
+    position: absolute;
+    top: 20px;
+    right: 22px;
+    z-index: 3;
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(124,247,255,0.4);
+    border-radius: 50%;
+  }
+  .vr-visual-reticle::before,
+  .vr-visual-reticle::after{
+    content:'';
+    position:absolute;
+    background: rgba(124,247,255,0.5);
+  }
+  .vr-visual-reticle::before{ left:50%; top:-6px; width:1px; height:8px; transform:translateX(-50%); }
+  .vr-visual-reticle::after{ left:50%; bottom:-6px; width:1px; height:8px; transform:translateX(-50%); }
+
+  /* ---- right content panel ---- */
+  #vr-modal-inner-frame{
+    position: relative;
+    z-index: 1;
+    padding: 38px 38px 30px 38px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  #vr-modal-inner-frame::-webkit-scrollbar{ display: none; }
+
+  .vr-modal-close{
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 5;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10,4,4,0.5);
+    border: 1px solid rgba(246,237,233,0.25);
+    color: var(--ash);
+    font-family:'Space Mono', monospace;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .vr-modal-close:hover{
+    border-color: var(--crimson);
+    color: var(--crimson);
+    box-shadow: 0 0 14px rgba(234,47,63,0.35);
+    transform: rotate(90deg);
+  }
+
+  .vr-modal-eyebrow{
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--cyan-flicker);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .vr-modal-eyebrow .dot{
+    width: 6px; height: 6px;
+    background: var(--cyan-flicker);
+    box-shadow: 0 0 10px var(--cyan-flicker);
+    border-radius: 50%;
+    animation: dotPulse 1.4s ease infinite;
+  }
+  @keyframes dotPulse{
+    0%,100%{ opacity: 1; }
+    50%{ opacity: 0.25; }
+  }
+
+  .vr-modal-title{
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.25rem, 2vw, 1.6rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--ash);
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px rgba(124,247,255,0.2);
+  }
+
+  .vr-modal-sub{
+    font-family: 'Manrope', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: rgba(246,237,233,0.5);
+    margin-bottom: 22px;
+    max-width: 52ch;
+  }
+
+  .vr-steps{
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    margin-bottom: 22px;
+  }
+  .vr-step{
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .vr-step-index{
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border: 1px solid rgba(124,247,255,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--cyan-flicker);
+    position: relative;
+  }
+  .vr-step-index::after{
+    content:'';
+    position:absolute;
+    inset: -4px;
+    border: 1px solid rgba(124,247,255,0.12);
+  }
+  .vr-step-text{ padding-top: 2px; }
+  .vr-step-text .vr-step-title{
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ash);
+    margin-bottom: 3px;
+  }
+  .vr-step-text .vr-step-desc{
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    line-height: 1.55;
+    color: rgba(246,237,233,0.4);
+    letter-spacing: 0.02em;
+  }
+
+  .vr-compat-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .vr-compat-chip{
+    font-family: 'Space Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: rgba(246,237,233,0.55);
+    border: 1px solid rgba(246,237,233,0.15);
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .vr-compat-chip .chip-dot{
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--cyan-flicker);
+    box-shadow: 0 0 6px var(--cyan-flicker);
+  }
+
+  .vr-modal-actions{
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .vr-modal-note{
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: rgba(246,237,233,0.3);
+    max-width: 24ch;
+    line-height: 1.6;
+  }
+
+  .btn-start-camera{
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 30px;
+    background: var(--ash);
+    color: var(--void);
+    border: 1px solid var(--ash);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    cursor: pointer;
+    overflow: hidden;
+    transition: box-shadow 0.35s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1);
+  }
+  .btn-start-camera::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background: linear-gradient(100deg, transparent, rgba(234,47,63,0.5), transparent);
+    transform: translateX(-140%);
+  }
+  .btn-start-camera:hover{
+    box-shadow: 0 0 26px rgba(124,247,255,0.35);
+    transform: translateY(-1px);
+  }
+  .btn-start-camera:hover::before{
+    transform: translateX(140%);
+    transition: transform 0.9s ease;
+  }
+  .btn-start-camera svg{ width:14px; height:14px; position: relative; z-index: 1; }
+  .btn-start-camera span{ position: relative; z-index: 1; }
+
+  @media (max-width: 860px){
+    #vr-modal{
+      grid-template-columns: 1fr;
+      max-height: 92vh;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    #vr-modal::-webkit-scrollbar{ display: none; }
+    .vr-visual-panel{ min-height: 200px; }
+    #vr-modal-inner-frame{ overflow-y: visible; padding: 30px 24px 26px 24px; }
+  }
+
+  @media (max-width: 600px){
+    .vr-modal-actions{ flex-direction: column; align-items: stretch; }
+    .btn-start-camera{ justify-content: center; }
+    .vr-modal-note{ max-width: 100%; text-align: center; }
+  }
+
+  @media (max-width:1024px){
+    #site-header { padding: 0 4vw; }
+    #finale-overlay {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 12vh 24px 8vh 24px;
+      overflow-y: auto;
+    }
+    .editorial-block {
+      max-width: 500px;
+      text-align: center !important;
+      border: none !important;
+      padding: 20px 0;
+    }
+    .editorial-block.right-panel {
+      margin-bottom: 40px;
+    }
+    .hud-line-v { display: none; }
+    #color-switch{ left: 16px; gap: 16px; }
+    .swatch-btn{ width: 22px; height: 22px; }
+    .btn-vr span.vr-btn-label{ display:none; }
+    .btn-vr{ padding: 9px 12px; }
+  }
+
+  @media (max-width:700px){
+    #rail, .hud-bracket, .hud-crosshair { display:none; }
+    #viewport-frame{ inset: 6px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #bg-layer{ transition:none; }
+    .ticker-row{ animation:none; }
+    .audio-bar { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="viewport-frame"></div>
+<div class="frame-tick top-r">SYS.01</div>
+<div class="frame-tick bottom-l">REV_2026</div>
+
+<header id="site-header">
+  <div class="header-left">JASX - 26</div>
+  <div class="header-right">
+    <button class="btn-vr" id="vr-open-btn" type="button" aria-haspopup="dialog" aria-controls="vr-modal-overlay">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 8c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v6c0 1.1-.9 2-2 2h-3.5l-1.8 2.2a1 1 0 0 1-1.5 0L9.4 16H6c-1.1 0-2-.9-2-2V8z"/>
+        <circle cx="8.5" cy="11" r="1.2" fill="currentColor" stroke="none"/>
+        <circle cx="15.5" cy="11" r="1.2" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="vr-btn-label">View in VR</span>
+    </button>
+    <button class="btn-vr btn-liquid-fx" id="liquid-fx-toggle" type="button" aria-pressed="false" title="Toggle cursor reveal effect">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3.2"/>
+        <path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.1 5.9l-2.1 2.1M8 14l-2.1 2.1M18.1 18.1l-2.1-2.1M8 10l-2.1-2.1"/>
+      </svg>
+      <span class="vr-btn-label" id="liquid-fx-label">Cursor FX: Off</span>
+    </button>
+    <a href="#buy" class="btn-buy">BUY NOW</a>
+    <button class="audio-toggle" aria-label="Toggle Atmosphere Sound">
+      <span class="audio-bar"></span>
+      <span class="audio-bar"></span>
+      <span class="audio-bar"></span>
+      <span class="audio-bar"></span>
+    </button>
+  </div>
+</header>
+
+<div id="color-switch">
+  <span class="switch-label">VARIANT</span>
+  <button class="swatch-btn black active" data-variant="black" aria-label="Black variant" title="Black"></button>
+  <button class="swatch-btn red" data-variant="red" aria-label="Red variant" title="Red"></button>
+  <button class="swatch-btn white" data-variant="white" aria-label="White variant" title="White"></button>
+</div>
+
+<div class="hud-bracket tl"></div>
+<div class="hud-crosshair tr">+</div>
+<div class="hud-crosshair bl">+</div>
+<div class="hud-bracket br"></div>
+
+<div class="hud-line-v left"></div>
+<div class="hud-line-v right"></div>
+
+<div id="bg-layer"></div>
+<div id="stage-glow"></div>
+<div id="bg-grain"></div>
+
+<div id="ticker-wrap">
+  <div class="ticker-row"></div>
+  <div class="ticker-row"></div>
+  <div class="ticker-row"></div>
+</div>
+
+<canvas id="webgl"></canvas>
+
+<div id="loader">
+  <div class="mark">MIDDLE / REVEAL</div>
+  <div id="loader-bar"><div id="loader-fill"></div></div>
+</div>
+
+<div id="brand">MIDDLE</div>
+<div id="rail"><div id="rail-fill"></div></div>
+
+<div id="green-transition-overlay"></div>
+
+<!-- ===================== LIQUID CURSOR-REVEAL FX (optional, default OFF) ===================== -->
+<div id="liquid-fx-canvas-wrap"><canvas id="liquid-fx-canvas"></canvas></div>
+<svg style="position:absolute; width:0; height:0; overflow:hidden;" xmlns="http://www.w3.org/2000/svg" version="1.1" aria-hidden="true">
+  <defs>
+    <filter id="organic-goo">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 45 -18" result="goo" />
+      <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+    </filter>
+  </defs>
+</svg>
+
+<!-- ===================== VR MODAL ===================== -->
+<div id="vr-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="vr-modal-title">
+  <div id="vr-modal">
+    <div class="vr-visual-panel">
+      <img src="https://images.unsplash.com/photo-1576633587382-13ddf37b1fc1?q=80&amp;w=1400&amp;auto=format&amp;fit=crop" alt="Person wearing a VR headset in a dark, futuristic setting" loading="lazy" />
+      <div class="vr-scanline"></div>
+      <div class="vr-visual-reticle"></div>
+      <div class="vr-visual-tag">SIGNAL<span>_LOCKED</span> // SET.03</div>
+    </div>
+
+    <div id="vr-modal-inner-frame">
+      <button class="vr-modal-close" id="vr-close-btn" aria-label="Close">&times;</button>
+
+      <div class="vr-modal-eyebrow"><span class="dot"></span>AR / VR PREVIEW</div>
+      <div class="vr-modal-title" id="vr-modal-title">View In Your Space</div>
+      <div class="vr-modal-sub">
+        Place the piece in your room at true scale using your camera, or step into a full immersive set to see every finish in real light.
+      </div>
+
+      <ul class="vr-steps">
+        <li class="vr-step">
+          <div class="vr-step-index">01</div>
+          <div class="vr-step-text">
+            <div class="vr-step-title">Choose A Set</div>
+            <div class="vr-step-desc">Pick from the curated environments — studio, gallery, or your own room scan.</div>
+          </div>
+        </li>
+        <li class="vr-step">
+          <div class="vr-step-index">02</div>
+          <div class="vr-step-text">
+            <div class="vr-step-title">Try It On</div>
+            <div class="vr-step-desc">Preview true-to-scale silhouette and material against the live feed.</div>
+          </div>
+        </li>
+        <li class="vr-step">
+          <div class="vr-step-index">03</div>
+          <div class="vr-step-text">
+            <div class="vr-step-title">Open Camera</div>
+            <div class="vr-step-desc">Launch your device camera to begin the live placement session.</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="vr-compat-row">
+        <span class="vr-compat-chip"><span class="chip-dot"></span>iOS ARKit</span>
+        <span class="vr-compat-chip"><span class="chip-dot"></span>Android ARCore</span>
+        <span class="vr-compat-chip"><span class="chip-dot"></span>WebXR</span>
+        <span class="vr-compat-chip"><span class="chip-dot"></span>Quest / Vision Pro</span>
+      </div>
+
+      <div class="vr-modal-actions">
+        <div class="vr-modal-note">Camera access required. No data leaves your device.</div>
+        <button class="btn-start-camera" id="start-camera-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          <span>Start Camera</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="finale-overlay">
+  <div class="editorial-block left-panel">
+    <div class="meta-tag">SYSTEM_ARCH</div>
+    <div class="editorial-title">The Structural Void</div>
+    <div class="editorial-body">
+      Positioned squarely between raw geometry and modified silhouettes, the architecture of the middle redefines modern physical frameworks. 
+    </div>
+  </div>
+
+  <div class="editorial-block right-panel">
+    <div class="meta-tag">CORE_GEN</div>
+    <div class="editorial-title">Dynamic Weight</div>
+    <div class="editorial-body">
+      Engineered parameters constructed with high-contrast asset files. Custom built for complete responsiveness across physical spaces.
+    </div>
+  </div>
+
+  <div class="finale-center-controls">
+    <div class="name-input-container">
+      <div class="name-prompt">LABEL IDENTITY</div>
+      <div class="editable-name" contenteditable="true" spellcheck="false">ENTER NAME</div>
+    </div>
+    <a href="#" class="btn" id="share-btn">Initialize Share</a>
+  </div>
+</div>
+
+<main>
+  <div class="spacer"></div>
+  <div class="spacer"></div>
+  <div class="spacer"></div>
+  <div class="spacer"></div>
+  <div class="spacer"></div>
+  <div class="spacer"></div>
+</main>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const { MODEL_PATH, BG_TEXTURE_PATH } = window.ASSETS;
+const VARIANTS = window.VARIANTS;
+let currentVariant = 'black';
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const MODEL_YAW_OFFSET = Math.PI;
+
+/* ---------------- renderer / scene / camera ---------------- */
+const canvas = document.getElementById('webgl');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.3;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.setClearColor(0x000000, 0);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0c0505, 0.03);
+
+const camera = new THREE.PerspectiveCamera(32, window.innerWidth/window.innerHeight, 0.1, 100);
+camera.position.set(0, 0.3, 6);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+/* ---------------- lighting ---------------- */
+scene.add(new THREE.AmbientLight(0x5a0a0e, 1.1));
+
+const hemi = new THREE.HemisphereLight(0xffe3d6, 0x2a0f10, 1.0);
+scene.add(hemi);
+
+const key = new THREE.SpotLight(0xfff6ef, 9, 24, Math.PI/5, 0.45, 1.0);
+key.position.set(3, 4.5, 4.5);
+scene.add(key);
+
+const frontFill = new THREE.PointLight(0xfff0e8, 3.2, 14, 1.6);
+frontFill.position.set(0, 0.8, 5);
+scene.add(frontFill);
+
+const rim = new THREE.PointLight(0xea2f3f, 10, 14, 2);
+rim.position.set(-3, 1, -3);
+scene.add(rim);
+
+const rim2 = new THREE.PointLight(0xff6a5a, 6, 12, 2);
+rim2.position.set(3, -1, -2.5);
+scene.add(rim2);
+
+const fill = new THREE.PointLight(0x7a0e14, 3, 10, 2);
+fill.position.set(0, -2, 3);
+scene.add(fill);
+
+/* ---- stored default intensities (used to restore black/red variants) ---- */
+const DEFAULT_KEY_INTENSITY = key.intensity;
+const DEFAULT_FRONTFILL_INTENSITY = frontFill.intensity;
+const DEFAULT_RIM_INTENSITY = rim.intensity;
+const DEFAULT_RIM2_INTENSITY = rim2.intensity;
+const DEFAULT_BLOOM_STRENGTH = 0.5;
+
+/* glow backdrop plane */
+const texLoader = new THREE.TextureLoader();
+let glowPlane = null;
+let glowMat = null;
+
+function loadGlowTexture(path){
+  texLoader.load(path, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    if (glowMat){
+      if (glowMat.map) glowMat.map.dispose();
+      glowMat.map = tex;
+      glowMat.needsUpdate = true;
+      return;
+    }
+    glowMat = new THREE.MeshBasicMaterial({
+      map: tex, transparent:true, opacity:0.35, blending:THREE.AdditiveBlending, depthWrite:false
+    });
+    glowPlane = new THREE.Mesh(new THREE.PlaneGeometry(30, 20), glowMat);
+    glowPlane.position.set(0, 0, -3.5);
+    scene.add(glowPlane);
+  });
+}
+loadGlowTexture(BG_TEXTURE_PATH);
+
+/* ---------------- product model ---------------- */
+const productGroup = new THREE.Group();
+scene.add(productGroup);
+const gltfLoader = new GLTFLoader();
+
+function disposeObject(obj){
+  obj.traverse((n) => {
+    if (n.isMesh){
+      if (n.geometry) n.geometry.dispose();
+      if (n.material){
+        const mats = Array.isArray(n.material) ? n.material : [n.material];
+        mats.forEach((m) => {
+          Object.keys(m).forEach((key) => {
+            const val = m[key];
+            if (val && val.isTexture) val.dispose();
+          });
+          m.dispose();
+        });
+      }
+    }
+  });
+}
+
+function clearProductGroup(){
+  while (productGroup.children.length){
+    const child = productGroup.children.pop();
+    disposeObject(child);
+    productGroup.remove(child);
+  }
+}
+
+function addFallbackModel(){
+  const geo = new THREE.TorusKnotGeometry(0.9, 0.28, 220, 32);
+  const mat = new THREE.MeshPhysicalMaterial({
+    color:0x1a0406, metalness:0.8, roughness:0.2,
+    clearcoat:1, clearcoatRoughness:0.1, reflectivity:1,
+    emissive:0x5a0a0e, emissiveIntensity:0.2
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  productGroup.add(mesh);
+  finishLoad();
+}
+
+const loaderEl = document.getElementById('loader');
+const loaderFill = document.getElementById('loader-fill');
+
+function finishLoad(){
+  loaderFill.style.width = '100%';
+  setTimeout(() => {
+    loaderEl.classList.add('hidden');
+    loaderEl.classList.remove('overlay-mode');
+    document.querySelectorAll('.swatch-btn').forEach((b) => b.classList.remove('loading'));
+  }, 350);
+}
+
+function loadModel(path, isInitial){
+  gltfLoader.load(
+    path,
+    (gltf) => {
+      clearProductGroup();
+      const model = gltf.scene;
+      model.traverse((n) => {
+        if (n.isMesh) {
+          n.castShadow = n.receiveShadow = true;
+          if (n.material) { n.material.envMapIntensity = 1.2; }
+        }
+      });
+      const box = new THREE.Box3().setFromObject(model);
+      const size = new THREE.Vector3(); box.getSize(size);
+      const center = new THREE.Vector3(); box.getCenter(center);
+      const scale = 2.2 / Math.max(size.x, size.y, size.z);
+      model.scale.setScalar(scale);
+      model.position.sub(center.multiplyScalar(scale));
+      productGroup.add(model);
+      finishLoad();
+    },
+    (xhr) => {
+      if (xhr.total) loaderFill.style.width = `${(xhr.loaded/xhr.total*100).toFixed(0)}%`;
+    },
+    (err) => {
+      console.warn(`${path} not found — using placeholder geometry.`, err);
+      if (isInitial) addFallbackModel();
+      else finishLoad();
+    }
+  );
+}
+
+loadModel(MODEL_PATH, true);
+
+/* ---------------- variant switching ---------------- */
+const colorSwitch = document.getElementById('color-switch');
+const swatchButtons = colorSwitch.querySelectorAll('.swatch-btn');
+
+function switchVariant(key_){
+  if (key_ === currentVariant || !VARIANTS[key_]) return;
+  currentVariant = key_;
+
+  swatchButtons.forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.variant === key_);
+    btn.classList.add('loading');
+  });
+
+  loaderFill.style.width = '0%';
+  loaderEl.classList.remove('hidden');
+  loaderEl.classList.add('overlay-mode');
+
+  const variant = VARIANTS[key_];
+  loadModel(variant.model, false);
+  loadGlowTexture(variant.bg);
+
+  /* ---- white variant runs too hot (bright material + full lighting/bloom) ----
+     Dial down bloom + key/fill lights ONLY for white; restore defaults for black/red. */
+  if (key_ === 'white'){
+    bloom.strength = 0.22;
+    key.intensity = DEFAULT_KEY_INTENSITY * 0.45;
+    frontFill.intensity = DEFAULT_FRONTFILL_INTENSITY * 0.5;
+    rim.intensity = DEFAULT_RIM_INTENSITY * 0.6;
+    rim2.intensity = DEFAULT_RIM2_INTENSITY * 0.6;
+  } else {
+    bloom.strength = DEFAULT_BLOOM_STRENGTH;
+    key.intensity = DEFAULT_KEY_INTENSITY;
+    frontFill.intensity = DEFAULT_FRONTFILL_INTENSITY;
+    rim.intensity = DEFAULT_RIM_INTENSITY;
+    rim2.intensity = DEFAULT_RIM2_INTENSITY;
+  }
+
+  const bgLayerEl = document.getElementById('bg-layer');
+  bgLayerEl.style.filter = 'saturate(1.1) brightness(0.3)';
+  const preload = new Image();
+  preload.onload = () => {
+    bgLayerEl.style.backgroundImage =
+      `radial-gradient(120% 90% at 50% 25%, rgba(12,5,5,0) 0%, rgba(12,5,5,0.4) 75%, rgba(12,5,5,0.8) 100%), url('${variant.bg}')`;
+    requestAnimationFrame(() => {
+      bgLayerEl.style.filter = 'saturate(1.1) brightness(0.7)';
+    });
+  };
+  preload.onerror = () => {
+    bgLayerEl.style.filter = 'saturate(1.1) brightness(0.7)';
+  };
+  preload.src = variant.bg;
+}
+
+swatchButtons.forEach((btn) => {
+  btn.addEventListener('click', () => switchVariant(btn.dataset.variant));
+});
+
+/* ---------------- post-processing (bloom) ---------------- */
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.5, 0.7, 0.45);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+/* ---------------- scroll-driven cinematic camera ---------------- */
+const KEYFRAMES = [
+  { t:0.00, pos:[0.0, 0.3, 6.0],  look:[0,0,0], fov:32, rotY:0.0,            rotX:0.0 },
+  { t:0.20, pos:[2.4, 0.6, 3.4],  look:[0,0,0], fov:30, rotY:Math.PI*0.6,    rotX:0.05 },
+  { t:0.40, pos:[-0.4,0.15,1.7],  look:[0,0.1,0], fov:22, rotY:Math.PI*1.15, rotX:0.15 },
+  { t:0.60, pos:[-2.6,1.1,3.0],   look:[0,0,0], fov:34, rotY:Math.PI*1.8,    rotX:-0.05 },
+  { t:0.80, pos:[0.0, 1.6, 4.4],  look:[0,0,0], fov:30, rotY:Math.PI*2.4,    rotX:0.0 },
+  { t:1.00, pos:[0.0, 0.0, 5.2],  look:[0,0,0], fov:32, rotY:Math.PI,        rotX:0.0 }
+];
+
+function lerp(a,b,t){ return a + (b-a)*t; }
+function easeInOut(t){ return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+
+function sampleKeyframes(progress){
+  let i = 0;
+  while (i < KEYFRAMES.length - 2 && progress > KEYFRAMES[i+1].t) i++;
+  const a = KEYFRAMES[i], b = KEYFRAMES[i+1];
+  const span = b.t - a.t || 1;
+  const localT = easeInOut(Math.min(Math.max((progress - a.t)/span, 0), 1));
+  return {
+    pos: a.pos.map((v,idx) => lerp(v, b.pos[idx], localT)),
+    look: a.look.map((v,idx) => lerp(v, b.look[idx], localT)),
+    fov: lerp(a.fov, b.fov, localT),
+    rotY: lerp(a.rotY, b.rotY, localT),
+    rotX: lerp(a.rotX, b.rotX, localT)
+  };
+}
+
+let targetProgress = 0;
+let smoothProgress = 0;
+const railFill = document.getElementById('rail-fill');
+
+function getScrollProgress(){
+  const scrollTop = window.scrollY;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  return max > 0 ? Math.min(Math.max(scrollTop / max, 0), 1) : 0;
+}
+
+window.addEventListener('scroll', () => { targetProgress = getScrollProgress(); }, { passive:true });
+
+/* subtle mouse parallax */
+let mouseX = 0, mouseY = 0, smoothMouseX = 0, smoothMouseY = 0;
+window.addEventListener('mousemove', (e) => {
+  mouseX = (e.clientX / window.innerWidth - 0.5);
+  mouseY = (e.clientY / window.innerHeight - 0.5);
+});
+
+/* ---------------- click-and-drag rotate (NEW) ----------------
+   Click on the model / canvas and move the mouse left/right to
+   spin the product like a cinematic turntable. Adds a manual
+   rotation offset that is combined with the existing scroll/idle
+   rotation in the render loop below — nothing else is altered. */
+let isDragging = false;
+let dragStartX = 0;
+let dragStartManualRotY = 0;
+let manualRotY = 0;
+let dragVelocity = 0;
+let lastDragX = 0;
+let lastDragTime = 0;
+
+const DRAG_SENSITIVITY = 0.006;
+
+function getClientX(e){
+  return (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX;
+}
+
+function onDragStart(e){
+  isDragging = true;
+  dragVelocity = 0;
+  const x = getClientX(e);
+  dragStartX = x;
+  lastDragX = x;
+  lastDragTime = performance.now();
+  dragStartManualRotY = manualRotY;
+  canvas.classList.add('dragging');
+}
+
+function onDragMove(e){
+  if (!isDragging) return;
+  const x = getClientX(e);
+  const deltaX = x - dragStartX;
+  manualRotY = dragStartManualRotY + deltaX * DRAG_SENSITIVITY;
+
+  const now = performance.now();
+  const dt = now - lastDragTime;
+  if (dt > 0){
+    dragVelocity = (x - lastDragX) * DRAG_SENSITIVITY / (dt / 16.67);
+  }
+  lastDragX = x;
+  lastDragTime = now;
+}
+
+function onDragEnd(){
+  isDragging = false;
+  canvas.classList.remove('dragging');
+}
+
+canvas.addEventListener('pointerdown', onDragStart);
+window.addEventListener('pointermove', onDragMove);
+window.addEventListener('pointerup', onDragEnd);
+window.addEventListener('pointercancel', onDragEnd);
+
+/* ---------------- background word ticker ---------------- */
+const TICKER_WORD = 'CHILE20 AB2003483F';
+const tickerWrap = document.getElementById('ticker-wrap');
+document.querySelectorAll('.ticker-row').forEach((row) => {
+  const sequence = Array(12).fill(TICKER_WORD).join('&nbsp;&nbsp;&nbsp;&nbsp;');
+  row.innerHTML = `<span>${sequence}</span><span aria-hidden="true">${sequence}</span>`;
+});
+
+/* background parallax */
+const bgLayer = document.getElementById('bg-layer');
+const finaleOverlay = document.getElementById('finale-overlay');
+
+function smoothstep(edge0, edge1, x){
+  const t = Math.min(Math.max((x - edge0) / (edge1 - edge0), 0), 1);
+  return t * t * (3 - 2 * t);
+}
+
+function updateTickerAndOverlay(progress){
+  const endVisibility = smoothstep(0.78, 0.96, progress).toFixed(3);
+  tickerWrap.style.opacity = endVisibility;
+  finaleOverlay.style.opacity = endVisibility;
+  
+  if (progress > 0.78) {
+    finaleOverlay.style.pointerEvents = 'auto';
+  } else {
+    finaleOverlay.style.pointerEvents = 'none';
+  }
+}
+
+/* ---------------- interactions & green flash redirect ---------------- */
+const shareBtn = document.getElementById('share-btn');
+const greenOverlay = document.getElementById('green-transition-overlay');
+const editableName = document.querySelector('.editable-name');
+
+editableName.addEventListener('focus', () => {
+  if(editableName.innerText.trim() === 'ENTER NAME') {
+    editableName.innerText = '';
+  }
+});
+
+editableName.addEventListener('blur', () => {
+  if(editableName.innerText.trim() === '') {
+    editableName.innerText = 'ENTER NAME';
+  }
+});
+
+shareBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  greenOverlay.classList.add('active');
+  
+  setTimeout(() => {
+    window.location.href = '#next-destination'; 
+  }, 450);
+});
+
+/* ---------------- VR modal (NEW) ----------------
+   Self-contained: only touches the new #vr-modal-overlay elements
+   and the new #vr-open-btn trigger. Nothing else in the page is
+   read or modified. */
+const vrOpenBtn = document.getElementById('vr-open-btn');
+const vrModalOverlay = document.getElementById('vr-modal-overlay');
+const vrCloseBtn = document.getElementById('vr-close-btn');
+const startCameraBtn = document.getElementById('start-camera-btn');
+let vrLastFocusedEl = null;
+
+function openVrModal(){
+  vrLastFocusedEl = document.activeElement;
+  vrModalOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => { vrCloseBtn.focus(); }, 50);
+}
+
+function closeVrModal(){
+  vrModalOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+  if (vrLastFocusedEl && typeof vrLastFocusedEl.focus === 'function'){
+    vrLastFocusedEl.focus();
+  }
+}
+
+vrOpenBtn.addEventListener('click', openVrModal);
+vrCloseBtn.addEventListener('click', closeVrModal);
+
+vrModalOverlay.addEventListener('click', (e) => {
+  if (e.target === vrModalOverlay) closeVrModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && vrModalOverlay.classList.contains('open')) closeVrModal();
+});
+
+startCameraBtn.addEventListener('click', () => {
+  window.location.href = 'camera.html';
+});
+
+/* ---------------- render loop ---------------- */
+const clock = new THREE.Clock();
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+
+  smoothProgress = lerp(smoothProgress, targetProgress, reduceMotion ? 1 : 0.07);
+  if (!reduceMotion){
+    smoothMouseX = lerp(smoothMouseX, mouseX, 0.05);
+    smoothMouseY = lerp(smoothMouseY, mouseY, 0.05);
+  }
+
+  /* decay drag inertia gently when released, so the release feels natural */
+  if (!isDragging && Math.abs(dragVelocity) > 0.00005){
+    manualRotY += dragVelocity;
+    dragVelocity *= 0.94;
+  } else if (!isDragging){
+    dragVelocity = 0;
+  }
+
+  const f = sampleKeyframes(smoothProgress);
+
+  camera.position.set(
+    f.pos[0] + smoothMouseX * 0.3,
+    f.pos[1] - smoothMouseY * 0.15,
+    f.pos[2]
+  );
+  camera.fov = f.fov;
+  camera.updateProjectionMatrix();
+  camera.lookAt(f.look[0], f.look[1], f.look[2]);
+
+  productGroup.rotation.y = f.rotY + MODEL_YAW_OFFSET + (reduceMotion ? 0 : clock.elapsedTime * 0.05) + manualRotY;
+  productGroup.rotation.x = f.rotX;
+  productGroup.updateMatrixWorld(true);
+
+  rim.position.x = Math.sin(clock.elapsedTime * 0.3) * 3;
+
+  bgLayer.style.transform = `translate(${(smoothMouseX * -20).toFixed(2)}px, ${(smoothMouseY * -20 + smoothProgress * -30).toFixed(2)}px)`;
+  railFill.style.height = `${smoothProgress * 100}%`;
+  updateTickerAndOverlay(smoothProgress);
+
+  composer.render(dt);
+}
+animate();
+
+/* ---------------- resize ---------------- */
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+
+<!-- ================================================================
+     LIQUID CURSOR-REVEAL FX — fully self-contained, default DISABLED.
+     Independent of the three.js module above: uses its own plain
+     2D canvas, its own animation loop, and only touches the new
+     #liquid-fx-* elements and #liquid-fx-toggle button. Nothing
+     above is read, modified, or relied upon.
+
+     How the reveal works: the canvas paints a dark veil across the
+     whole screen, then cuts an organic, transparent hole at the
+     cursor using destination-out compositing. Because the hole is
+     genuinely transparent (not a redrawn texture), whatever real
+     content sits beneath the canvas — the 3D model, the background,
+     anything — shows straight through it, exactly like a physical
+     window into the actual page.
+
+     Performance: the canvas' internal pixel buffer is rendered at a
+     reduced resolution (RENDER_SCALE) and stretched back up via CSS,
+     which cuts the cost of the SVG goo blur filter substantially
+     (blur cost scales with pixel count) — this is what removes the lag.
+================================================================ -->
+<script>
+(function(){
+  const toggleBtn   = document.getElementById('liquid-fx-toggle');
+  const label       = document.getElementById('liquid-fx-label');
+  const canvasWrap  = document.getElementById('liquid-fx-canvas-wrap');
+  const canvas      = document.getElementById('liquid-fx-canvas');
+  const ctx         = canvas.getContext('2d');
+
+  const RENDER_SCALE = 0.6; /* internal buffer rendered at 60% resolution, upscaled via CSS — main lag fix */
+
+  let bufW = 0, bufH = 0;
+  let enabled = false;
+  let rafId = null;
+
+  const mouse = { targetX: 0, targetY: 0 };
+  const blob  = { x: 0, y: 0, vx: 0, vy: 0, radius: 95 * RENDER_SCALE };
+
+  function sizeCanvas(){
+    bufW = canvas.width  = Math.round(window.innerWidth * RENDER_SCALE);
+    bufH = canvas.height = Math.round(window.innerHeight * RENDER_SCALE);
+  }
+
+  function getX(e){ return (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX; }
+  function getY(e){ return (e.touches && e.touches.length) ? e.touches[0].clientY : e.clientY; }
+
+  function onMove(e){
+    mouse.targetX = getX(e) * RENDER_SCALE;
+    mouse.targetY = getY(e) * RENDER_SCALE;
+  }
+
+  function animate(){
+    if (!enabled) return;
+
+    const dx = mouse.targetX - blob.x;
+    const dy = mouse.targetY - blob.y;
+    blob.vx += dx * 0.06;
+    blob.vy += dy * 0.06;
+    blob.vx *= 0.74;
+    blob.vy *= 0.74;
+    blob.x += blob.vx;
+    blob.y += blob.vy;
+
+    const velocity = Math.sqrt(blob.vx * blob.vx + blob.vy * blob.vy);
+    const stretch = Math.min(velocity * 2.2, 130 * RENDER_SCALE);
+    const moveAngle = Math.atan2(blob.vy, blob.vx);
+
+    /* paint the dark veil fresh each frame */
+    ctx.clearRect(0, 0, bufW, bufH);
+    ctx.fillStyle = 'rgba(12,5,5,0.94)';
+    ctx.fillRect(0, 0, bufW, bufH);
+
+    /* punch the organic, transparent hole — real page shows through it */
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = '#ffffff';
+
+    ctx.beginPath();
+    ctx.arc(blob.x - blob.vx * 0.4, blob.y - blob.vy * 0.4, blob.radius * 0.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.translate(blob.x, blob.y);
+    ctx.rotate(moveAngle);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, blob.radius + stretch, blob.radius - (stretch * 0.24), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    rafId = requestAnimationFrame(animate);
+  }
+
+  function enableFx(){
+    enabled = true;
+    sizeCanvas();
+    mouse.targetX = blob.x = bufW / 2;
+    mouse.targetY = blob.y = bufH / 2;
+    canvasWrap.classList.add('active');
+    window.addEventListener('mousemove', onMove, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: true });
+    if (!rafId) animate();
+    toggleBtn.classList.add('active');
+    toggleBtn.setAttribute('aria-pressed', 'true');
+    label.textContent = 'Cursor FX: On';
+  }
+
+  function disableFx(){
+    enabled = false;
+    canvasWrap.classList.remove('active');
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('touchmove', onMove);
+    if (rafId){ cancelAnimationFrame(rafId); rafId = null; }
+    if (bufW && bufH) ctx.clearRect(0, 0, bufW, bufH);
+    toggleBtn.classList.remove('active');
+    toggleBtn.setAttribute('aria-pressed', 'false');
+    label.textContent = 'Cursor FX: Off';
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    if (enabled) disableFx(); else enableFx();
+  });
+
+  window.addEventListener('resize', () => { if (enabled) sizeCanvas(); });
+
+  /* default state on load: DISABLED, per requirement */
+  disableFx();
+})();
+</script>
+
+<style>
+#musicToggle{
+    position:fixed;
+    right:144px;
+    bottom:28px;
+    width:150px;
+    height:43px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+
+    background:transparent;
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
+
+    font-family:Inter,Arial,sans-serif;
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+
+    cursor:pointer;
+    z-index:999999;
+
+    transition:all .25s ease;
+}
+
+#musicToggle:hover{
+    border-color:#fff;
+    background:rgba(255,255,255,.03);
+}
+
+#musicToggle svg{
+    width:18px;
+    height:18px;
+    stroke:#fff;
+    fill:none;
+    stroke-width:1.8;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    flex-shrink:0;
+}
+
+#musicToggle span{
+    color:#fff;
+    display:block;
+    line-height:1;
+    user-select:none;
+}
+</style>
+
+<button id="musicToggle">
+    <span id="musicText">ENABLE</span>
+
+    <svg id="musicIcon" viewBox="0 0 24 24">
+        <path d="M4 17h2"></path>
+        <path d="M8 13h2"></path>
+        <path d="M12 9h2"></path>
+        <path d="M16 6h2"></path>
+        <path d="M20 11h0"></path>
+
+        <path d="M5 17V7"></path>
+        <path d="M9 13V5"></path>
+        <path d="M13 9V4"></path>
+        <path d="M17 6V4"></path>
+    </svg>
+</button>
+
+<script>
+const music = new Audio("backmusic.mp3");
+music.loop = true;
+music.volume = 0.5;
+
+const button = document.getElementById("musicToggle");
+const text = document.getElementById("musicText");
+
+let playing = false;
+
+button.addEventListener("click", async () => {
+    try{
+        if(!playing){
+            await music.play();
+            playing = true;
+            text.textContent = "DISABLE";
+        }else{
+            music.pause();
+            playing = false;
+            text.textContent = "ENABLE";
+        }
+    }catch(err){
+        console.error(err);
+    }
+});
+</script>
+</body>
+</html>

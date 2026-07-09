@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JASX - 26</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --bg:#08090b;
+    --ink:#f3f4f6;
+    --ink-mute:#9aa0aa;
+    --ink-faint:#565c66;
+    --red:#e13a2e;
+    --line:rgba(255,255,255,.16);
+    --line-soft:rgba(255,255,255,.08);
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html,body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    overflow:hidden;
+    height:100vh;
+    width:100vw;
+}
+
+.grain{
+    position:fixed;
+    inset:0;
+    z-index:60;
+    pointer-events:none;
+    opacity:.045;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ---------- background image ---------- */
+.bg-wrap{
+    position:fixed;
+    inset:0;
+    z-index:1;
+    overflow:hidden;
+    background:#000;
+}
+.bg-image{
+    position:absolute;
+    inset:-6%;
+    background-image:url('back.png');
+    background-size:cover;
+    background-position:center;
+    will-change:transform;
+    transform:translate3d(0,0,0) scale(1.06);
+}
+.bg-shade{
+    position:fixed;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    background:linear-gradient(180deg, rgba(8,9,11,.35) 0%, rgba(8,9,11,0) 22%, rgba(8,9,11,0) 70%, rgba(8,9,11,.55) 100%);
+}
+
+/* ---------- nav ---------- */
+.nav{
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:32px 44px;
+    backdrop-filter:blur(2px);
+}
+.nav-left{
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+.nav-brand{
+    font-family:var(--font-display);
+    font-size:19px;
+    font-weight:700;
+    letter-spacing:.06em;
+    color:var(--ink);
+}
+.nav-div{
+    width:1px;height:20px;
+    background:var(--line);
+}
+.nav-tag{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.1em;
+    color:var(--ink-mute);
+    text-transform:uppercase;
+}
+.nav-right{
+    display:flex;
+    align-items:center;
+    gap:26px;
+}
+.nav-cta{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--ink);
+    border:1px solid var(--line);
+    padding:13px 22px;
+    background:rgba(255,255,255,.02);
+    cursor:pointer;
+    transition:background .3s ease, transform .35s cubic-bezier(.22,1,.36,1);
+}
+.nav-cta:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.35);transform:translateY(-1px);}
+.nav-lang{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.08em;
+    color:var(--ink-mute);
+}
+.nav-menu{
+    display:flex;
+    gap:4px;
+    align-items:flex-end;
+    height:16px;
+    cursor:pointer;
+}
+.nav-menu span{
+    width:2px;
+    background:var(--ink-mute);
+}
+.nav-menu span:nth-child(1){height:10px;}
+.nav-menu span:nth-child(2){height:16px;}
+.nav-menu span:nth-child(3){height:10px;}
+
+/* ---------- 3D stage ---------- */
+.stage{
+    position:fixed;
+    inset:0;
+    z-index:5;
+    overflow:hidden;
+    pointer-events:none;
+}
+.stage-inner{
+    position:absolute;
+    left:0;
+    top:-100px;
+    width:100%;
+    height:calc(100% + 100px);
+}
+canvas{
+    display:block;
+    opacity:0;
+    transition:opacity 1.1s ease;
+}
+canvas.ready{opacity:1;}
+
+.vignette{
+    position:fixed;
+    inset:0;
+    z-index:8;
+    pointer-events:none;
+    box-shadow:inset 0 0 240px 70px rgba(0,0,0,.5);
+}
+
+/* ---------- badge ---------- */
+.badge-wrap{
+    position:fixed;
+    left:50%;
+    bottom:70px;
+    transform:translateX(-50%);
+    z-index:20;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:16px;
+    opacity:0;
+    transform:translateX(-50%) translateY(16px);
+    animation:riseIn 1.1s .6s cubic-bezier(.16,1,.3,1) forwards;
+}
+.badge{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-style:italic;
+    font-size:30px;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+    border:1.5px solid var(--ink);
+    padding:14px 34px;
+    color:var(--ink);
+}
+.badge-sub{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--ink-mute);
+}
+@keyframes riseIn{to{opacity:1;transform:translateX(-50%) translateY(0);}}
+
+/* ---------- extra copy: kicker + vertical side labels ----------
+   Purely to give the mostly-black canvas a little more texture; static,
+   not tied to hover. */
+.kicker{
+    position:fixed;
+    top:112px;
+    left:50%;
+    z-index:20;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--ink-mute);
+    opacity:0;
+    transform:translateX(-50%) translateY(16px);
+    animation:riseIn 1.1s .9s cubic-bezier(.16,1,.3,1) forwards;
+}
+.side-label{
+    position:fixed;
+    top:50%;
+    z-index:20;
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:.26em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    writing-mode:vertical-rl;
+    transform:translateY(-50%) rotate(180deg);
+    opacity:.7;
+    pointer-events:none;
+}
+.side-label.left{left:28px;}
+.side-label.right{right:28px;}
+
+/* ---------- hover theme wash ----------
+   Three stacked, pre-colored radial glows sit permanently in the DOM at
+   opacity 0. Hovering a jacket only toggles a class on <body>; the
+   browser cross-fades opacity on its own compositor thread, so this is
+   effectively free — nothing here can cause the jank that per-frame DOM
+   writes would.
+
+   Left/center intensities were dialled back from the original pass:
+   the white theme was blowing out to near-solid-white and the dark theme
+   was crushing to near-solid-black. Lower opacity + slightly less extreme
+   base color on both keeps the photo/jackets visible underneath while
+   still reading clearly as "light" vs "dark". The red theme was already
+   right, so it's untouched. */
+.theme-wash{
+    position:fixed;
+    inset:0;
+    z-index:6;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity 1.1s cubic-bezier(.16,1,.3,1);
+}
+.wash-left{  background:rgba(238,236,230,.16); mix-blend-mode:screen;   }
+.wash-center{background:rgba(32,34,40,.30);     mix-blend-mode:multiply;}
+.wash-right{ background:rgba(140,16,16,.85);    mix-blend-mode:color;   }
+body.hover-left .wash-left{opacity:1;}
+body.hover-center .wash-center{opacity:1;}
+body.hover-right .wash-right{opacity:1;}
+
+.badge{transition:border-color .7s cubic-bezier(.16,1,.3,1);}
+body.hover-left .badge{border-color:#f2f0ec;}
+body.hover-center .badge{border-color:#c7cbd1;}
+body.hover-right .badge{border-color:#e13a2e;}
+
+/* ---------- footer ---------- */
+.footer{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    z-index:20;
+    display:flex;
+    gap:24px;
+    padding:22px 44px;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:.06em;
+    color:var(--ink-faint);
+    text-transform:uppercase;
+}
+.footer span{opacity:.9;}
+
+/* ---------- loader ---------- */
+.loader{
+    position:fixed;
+    inset:0;
+    z-index:70;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    background:var(--bg);
+    transition:opacity .7s ease, visibility .7s ease;
+}
+.loader.hidden{opacity:0;visibility:hidden;}
+.loader-ring{
+    width:32px;height:32px;
+    border-radius:50%;
+    border:1.5px solid var(--line-soft);
+    border-top-color:var(--red);
+    animation:spin 1s linear infinite;
+}
+.loader-pct{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.1em;
+    color:var(--ink-faint);
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media (max-width:760px){
+    .nav-tag,.nav-lang{display:none;}
+    .badge{font-size:22px;padding:11px 24px;}
+    .footer{flex-wrap:wrap;font-size:9px;padding:16px 20px;}
+    .nav{padding:22px 20px;}
+}
+
+@media (prefers-reduced-motion:reduce){
+    .loader-ring{animation:none;}
+    .bg-image{transition:none;}
+}
+</style>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.166.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.166.1/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<div class="bg-wrap"><div class="bg-image" id="bgImage"></div></div>
+<div class="bg-shade"></div>
+<div class="grain"></div>
+
+<header class="nav">
+    <div class="nav-left">
+        <div class="nav-brand">JASX - 26</div>
+        <div class="nav-div"></div>
+        <div class="nav-tag">Studio</div>
+    </div>
+    <div class="nav-right">
+        <button class="nav-cta">Shop the Collection</button>
+        <div class="nav-lang">EN</div>
+        <div class="nav-menu"><span></span><span></span><span></span></div>
+    </div>
+</header>
+
+<div class="stage"><div class="stage-inner" id="stageInner"></div></div>
+<div class="theme-wash wash-left"></div>
+<div class="theme-wash wash-center"></div>
+<div class="theme-wash wash-right"></div>
+<div class="vignette"></div>
+
+<div class="kicker">JASX - 26 — Three Silhouettes, One Architecture</div>
+<div class="side-label left">FW26 — Alpine Studio</div>
+<div class="side-label right">3-Layer GORE-TEX Pro Construction</div>
+
+<div class="badge-wrap">
+    <div class="badge">JASX - 26</div>
+    <div class="badge-sub">Select a shell to begin</div>
+</div>
+
+<footer class="footer">
+    <span>© 2026 JASX - 26</span>
+    <span>Terms &amp; Conditions</span>
+    <span>Privacy</span>
+    <span>Cookies</span>
+</footer>
+
+<div class="loader" id="loader">
+    <div class="loader-ring"></div>
+    <div class="loader-pct" id="loaderPct">Loading — 0%</div>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+const stageInner = document.getElementById('stageInner');
+const loaderEl   = document.getElementById('loader');
+const loaderPct  = document.getElementById('loaderPct');
+const bgImage    = document.getElementById('bgImage');
+
+/* ---------------- render size = viewport + 100px extra height ---------------- */
+const SHIFT_PX = 100;
+function renderSize(){
+    return { w: window.innerWidth, h: window.innerHeight + SHIFT_PX };
+}
+
+/* ---------------- renderer / scene / camera ---------------- */
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x08090b, 0.05);
+
+let { w: rw, h: rh } = renderSize();
+const camera = new THREE.PerspectiveCamera(36, rw/rh, 0.1, 100);
+camera.position.set(0, 1.9, 6.0);
+camera.lookAt(0, 1.86, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
+renderer.setSize(rw, rh);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+stageInner.appendChild(renderer.domElement);
+
+/* ---------------- lights ---------------- */
+scene.add(new THREE.AmbientLight(0x404550, 1.1));
+
+const key = new THREE.DirectionalLight(0xffffff, 3.2);
+key.position.set(3, 6, 5);
+scene.add(key);
+
+const redRim = new THREE.PointLight(0xe13a2e, 12, 9, 2.2);
+redRim.position.set(0, 2.1, -1.2);
+scene.add(redRim);
+
+const whiteRim = new THREE.DirectionalLight(0xdfe4ea, 1.5);
+whiteRim.position.set(-4, 3, -4);
+scene.add(whiteRim);
+
+/* ---------------- canvas texture helpers ---------------- */
+function radialTexture(colorHex, feather=0.5){
+    const size = 256;
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+    g.addColorStop(0, colorHex + 'ff');
+    g.addColorStop(feather, colorHex + '55');
+    g.addColorStop(1, colorHex + '00');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,size,size);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+}
+
+/* soft, feathered snowflake texture — softer falloff than a generic dot
+   so flakes glow gently instead of reading as hard little circles. */
+function snowflakeTexture(){
+    const size = 128;
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+    g.addColorStop(0,    'rgba(255,255,255,1)');
+    g.addColorStop(0.25, 'rgba(255,255,255,.9)');
+    g.addColorStop(0.55, 'rgba(235,242,250,.35)');
+    g.addColorStop(1,    'rgba(235,242,250,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,size,size);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+}
+
+/* ---------------- vertical stick texture ---------------- */
+// Draws rodinside.png into the stick canvas using cover-fit (crops to fill
+// the full w x h regardless of the image's own aspect ratio, like CSS
+// background-size:cover), then layers the same bevel/border/cap/fade
+// treatment as before on top. If the image hasn't loaded yet (or fails),
+// falls back to a flat neutral fill so the sticks never render blank.
+function coverDrawImage(ctx, img, w, h){
+    const ir = img.naturalWidth / img.naturalHeight;
+    const cr = w / h;
+    let sw, sh, sx, sy;
+    if(ir > cr){
+        sh = img.naturalHeight;
+        sw = sh * cr;
+        sx = (img.naturalWidth - sw) / 2;
+        sy = 0;
+    } else {
+        sw = img.naturalWidth;
+        sh = sw / cr;
+        sx = 0;
+        sy = (img.naturalHeight - sh) / 2;
+    }
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+}
+
+function verticalBarTexture(borderHex, capHex, img){
+    const w = 150, h = 720;
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+
+    if(img && img.complete && img.naturalWidth){
+        coverDrawImage(ctx, img, w, h);
+    } else {
+        ctx.fillStyle = '#20222a';
+        ctx.fillRect(0,0,w,h);
+    }
+
+    const round = ctx.createLinearGradient(0,0,w,0);
+    round.addColorStop(0,   'rgba(255,255,255,.22)');
+    round.addColorStop(0.22,'rgba(255,255,255,.06)');
+    round.addColorStop(0.55,'rgba(0,0,0,0)');
+    round.addColorStop(0.85,'rgba(0,0,0,.16)');
+    round.addColorStop(1,   'rgba(0,0,0,.32)');
+    ctx.fillStyle = round;
+    ctx.fillRect(0,0,w,h);
+
+    const travel = ctx.createLinearGradient(0,0,0,h);
+    travel.addColorStop(0,   'rgba(255,255,255,.10)');
+    travel.addColorStop(0.35,'rgba(255,255,255,0)');
+    travel.addColorStop(1,   'rgba(0,0,0,.12)');
+    ctx.fillStyle = travel;
+    ctx.fillRect(0,0,w,h);
+
+    ctx.strokeStyle = borderHex || 'rgba(255,255,255,.4)';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(3,3,w-6,h-6);
+
+    ctx.fillStyle = capHex || 'rgba(255,255,255,.5)';
+    ctx.fillRect(0, h-14, w, 4);
+    ctx.strokeStyle = borderHex || 'rgba(255,255,255,.4)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(3, h-30, w-6, 26);
+
+    const fade = ctx.createLinearGradient(0,0,0,h);
+    fade.addColorStop(0,    'rgba(0,0,0,1)');
+    fade.addColorStop(0.09, 'rgba(0,0,0,0)');
+    fade.addColorStop(1,    'rgba(0,0,0,0)');
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = fade;
+    ctx.fillRect(0,0,w,h);
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    return tex;
+}
+
+/* soft contact shadow under the jackets */
+const contactShadow = new THREE.Mesh(
+    new THREE.PlaneGeometry(7, 3.2),
+    new THREE.MeshBasicMaterial({ map:radialTexture('#000000',0.35), transparent:true, opacity:.45, depthWrite:false })
+);
+contactShadow.rotation.x = -Math.PI/2;
+contactShadow.position.set(0, -1.32, 0.6);
+scene.add(contactShadow);
+
+/* ---------------- three background sticks: white / black / red ---------------- */
+const backdrop = new THREE.Group();
+scene.add(backdrop);
+
+const STICK_X = 1.0;
+const STICK_Z = -1.7;
+const STICK_W = 0.62 * (150/160);   // ~10px narrower
+const STICK_H = 5.6 * 0.8 + 0.194 - 0.3875 - 0.27125;  // 70px more trimmed off the bottom
+const STICK_Y = 1.75 + 0.19375 + 0.135625;             // shifted up so the top edge stays put
+
+const STICK_DEFS = [
+    { key:'left',   color:'#f2f0ec', border:'rgba(255,255,255,.55)', cap:'rgba(255,255,255,.85)', x:-STICK_X },
+    { key:'center', color:'#0c0d10', border:'rgba(255,255,255,.28)', cap:'rgba(220,220,225,.6)',  x: 0       },
+    { key:'right',  color:'#e13a2e', border:'rgba(255,190,180,.55)', cap:'rgba(255,220,210,.85)', x: STICK_X }
+];
+
+// stickMeshes holds each stick's material + its own resting color, so on
+// hover all three sticks can lerp toward the hovered jacket's theme color
+// (e.g. a deep red for the right jacket) and lerp back to their own
+// original color when nothing's hovered. Populated once rodinside.png is
+// ready (or fails), by buildSticks() below.
+let stickMeshes = [];
+
+function buildSticks(img){
+    STICK_DEFS.forEach(b=>{
+        // img is drawn cover-fit into every stick regardless of its own
+        // width/height; the per-stick brand color (b.color) is applied as
+        // the material's multiply tint on top of that shared photo, same
+        // as the flat-fill version before — so left reads white-tinted,
+        // center near-black, right red, all over the same underlying image.
+        const mat = new THREE.MeshStandardMaterial({
+            map:verticalBarTexture(b.border, b.cap, img),
+            color:new THREE.Color(b.color),
+            transparent:true,
+            opacity:.62,
+            roughness:.4,
+            metalness:.35,
+            depthWrite:false,
+            side:THREE.DoubleSide
+        });
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(STICK_W, STICK_H), mat);
+        mesh.position.set(b.x, STICK_Y, STICK_Z);
+        backdrop.add(mesh);
+        stickMeshes.push({ mat, originalColor: mat.color.clone() });
+    });
+}
+
+const rodImg = new Image();
+rodImg.onload  = ()=> buildSticks(rodImg);
+rodImg.onerror = ()=> buildSticks(null);
+rodImg.src = 'rodinside.png';
+
+// theme colors used on hover — dialled back slightly from pure white /
+// near-black so the sticks shift theme without blowing out to flat white
+// or crushing to flat black.
+const themeStickColors = {
+    left:   new THREE.Color(0xe9e7e2),
+    center: new THREE.Color(0x2a2c31),
+    right:  new THREE.Color(0x9c1414)
+};
+
+function updateStickTheme(){
+    stickMeshes.forEach(s=>{
+        const target = hoveredKey ? themeStickColors[hoveredKey] : s.originalColor;
+        s.mat.color.lerp(target, 0.06);
+    });
+}
+
+/* ---------------- light dust drifting through the scene ---------------- */
+const dustCount = 90;
+const dustGeo = new THREE.BufferGeometry();
+const dustPos = new Float32Array(dustCount*3);
+for(let i=0;i<dustCount;i++){
+    dustPos[i*3]   = (Math.random()-0.5)*10;
+    dustPos[i*3+1] = Math.random()*4 - 1.3;
+    dustPos[i*3+2] = (Math.random()-0.5)*8 - 1;
+}
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos,3));
+const dustMat = new THREE.PointsMaterial({
+    size:.02, map:radialTexture('#ffffff',0.5), transparent:true, opacity:.3,
+    blending:THREE.AdditiveBlending, depthWrite:false
+});
+const dust = new THREE.Points(dustGeo, dustMat);
+scene.add(dust);
+
+/* ---------------- snow ----------------
+   Three depth layers (far / mid / near) instead of two, each with its own
+   size, drift speed and softness, plus a gentle overall twinkle on
+   opacity — reads far more like real falling snow than a single flat
+   layer of identical dots. */
+const snowGroup = new THREE.Group();
+scene.add(snowGroup);
+
+const snowflakeMap = snowflakeTexture();
+
+function makeSnowLayer(count, spreadX, spreadZ, zOffset, baseY, sizeRange, speedRange, opacity){
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count*3);
+    const speed = new Float32Array(count);
+    const sway = new Float32Array(count);
+    const swaySpeed = new Float32Array(count);
+    const sizeMul = new Float32Array(count);
+    for(let i=0;i<count;i++){
+        pos[i*3]   = (Math.random()-0.5)*spreadX;
+        pos[i*3+1] = Math.random()*7 - 1.3 + baseY;
+        pos[i*3+2] = (Math.random()-0.5)*spreadZ + zOffset;
+        speed[i]   = speedRange[0] + Math.random()*(speedRange[1]-speedRange[0]);
+        sway[i]    = Math.random()*Math.PI*2;
+        swaySpeed[i] = 0.5 + Math.random()*0.9;
+        sizeMul[i] = sizeRange[0] + Math.random()*(sizeRange[1]-sizeRange[0]);
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    const mat = new THREE.PointsMaterial({
+        size: sizeRange[1],
+        map: snowflakeMap,
+        transparent:true,
+        opacity,
+        blending:THREE.AdditiveBlending,
+        depthWrite:false,
+        sizeAttenuation:true
+    });
+    const points = new THREE.Points(geo, mat);
+    snowGroup.add(points);
+    return { geo, mat, pos, speed, sway, swaySpeed, sizeMul, count, spreadX, spreadZ, zOffset, baseOpacity:opacity };
+}
+
+const snowFar  = makeSnowLayer(110, 12, 5,  -3.5, 0, [0.028,0.045], [0.0016,0.0032], 0.32);
+const snowMid  = makeSnowLayer(90,  10, 6,  -0.5, 0, [0.045,0.07],  [0.0022,0.0042], 0.5);
+const snowNear = makeSnowLayer(48,  8,  4,   2.0, 0, [0.075,0.115], [0.0032,0.0058], 0.42);
+
+function updateSnowLayer(layer, wind){
+    const pos = layer.pos;
+    for(let i=0;i<layer.count;i++){
+        const idx = i*3;
+        pos[idx+1] -= layer.speed[i];
+        pos[idx] += Math.sin(t*layer.swaySpeed[i] + layer.sway[i]) * 0.0016 * layer.sizeMul[i] + wind*0.002;
+        if(pos[idx+1] < -1.6){
+            pos[idx+1] = 5.3 + Math.random()*1.6;
+            pos[idx] = (Math.random()-0.5)*layer.spreadX;
+            pos[idx+2] = (Math.random()-0.5)*layer.spreadZ + layer.zOffset;
+        }
+    }
+    layer.geo.attributes.position.needsUpdate = true;
+}
+
+function updateSnow(){
+    const wind = Math.sin(t*0.11) * 0.35 + Math.sin(t*0.037) * 0.18;
+
+    updateSnowLayer(snowFar, wind);
+    updateSnowLayer(snowMid, wind);
+    updateSnowLayer(snowNear, wind);
+
+    // gentle shared twinkle so the snowfall feels alive rather than static
+    const twinkle = 0.9 + Math.sin(t*1.6) * 0.06 + Math.sin(t*3.1) * 0.03;
+    snowFar.mat.opacity  = snowFar.baseOpacity  * twinkle;
+    snowMid.mat.opacity  = snowMid.baseOpacity  * twinkle;
+    snowNear.mat.opacity = snowNear.baseOpacity * twinkle;
+
+    snowGroup.position.x = -smX * 0.3;
+    snowGroup.position.y = -smY * 0.15;
+}
+
+/* ---------------- jacket rig ---------------- */
+const rig = new THREE.Group();
+rig.position.y = 1.5 + 0.19375; // raised ~50px
+scene.add(rig);
+
+function tintInstance(inst, factor, roughnessBoost){
+    inst.traverse(o=>{
+        if(o.isMesh){
+            const mats = Array.isArray(o.material) ? o.material : [o.material];
+            mats.forEach(m=>{
+                if(m.color) m.color.multiplyScalar(factor);
+                if('roughness' in m) m.roughness = Math.min(1, m.roughness + roughnessBoost);
+                if('emissiveIntensity' in m) m.emissiveIntensity *= factor;
+            });
+        }
+    });
+}
+
+/* Fallback: abstract 3-layer shell, used only if a jacket glb can't be found. */
+function buildFallbackShell(){
+    const group = new THREE.Group();
+    const layerDefs = [
+        { r:0.5,  h:1.3, opacity:1,   metalness:.1, roughness:.85, color:0x14171c },
+        { r:0.58, h:1.4, opacity:.28, metalness:.2, roughness:.4,  color:0x2a2f38 },
+        { r:0.66, h:1.5, opacity:.12, metalness:.1, roughness:.2,  color:0xe13a2e }
+    ];
+    layerDefs.forEach((d,i)=>{
+        const geo = new THREE.CapsuleGeometry(d.r, d.h, 8, 24);
+        const mat = new THREE.MeshStandardMaterial({
+            color:d.color, roughness:d.roughness, metalness:d.metalness,
+            transparent:d.opacity<1, opacity:d.opacity,
+            side: i>0 ? THREE.DoubleSide : THREE.FrontSide
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.y = 0.1;
+        group.add(mesh);
+    });
+    const seamMat = new THREE.MeshStandardMaterial({ color:0xe13a2e, roughness:.3, metalness:.8, emissive:0xe13a2e, emissiveIntensity:.18 });
+    [0.5,0.05,-0.5].forEach(y=>{
+        const seam = new THREE.Mesh(new THREE.TorusGeometry(0.505, 0.006, 8, 48), seamMat);
+        seam.rotation.x = Math.PI/2;
+        seam.position.y = y + 0.1;
+        group.add(seam);
+    });
+    const zip = new THREE.Mesh(new THREE.CylinderGeometry(0.014,0.014,0.9,10), new THREE.MeshStandardMaterial({color:0xe13a2e, roughness:.25, metalness:.9}));
+    zip.position.set(0,0.15,0.46);
+    group.add(zip);
+    return group;
+}
+
+/* ---------------- layout ----------------
+   Jackets scaled down ~0.2x from the original (1.04 -> 0.84), then bumped
+   back up by 0.1x (0.84 -> 0.94), pulled closer together to match the
+   smaller size (±1.28 -> ±0.98), and the side jackets turned further
+   outward to face left/right more (±0.55 -> ±0.8). */
+const layout = [
+    { key:'left',   file:'left.glb',   x:-1.194125, y:0, z:0.1,  ry:-0.95,  scale:0.94, tint:0.68, rough:0.14 },
+    { key:'center', file:'middle.glb', x: 0,    y:0, z:0.35, ry: 0.0,   scale:0.94, tint:1.0,  rough:0    },
+    { key:'right',  file:'right.glb',  x: 1.194125, y:0, z:0.1,  ry: 0.95,  scale:0.94, tint:0.68, rough:0.14 }
+];
+const instances = [];
+
+/* ---------------- carousel slots ----------------
+   The three jackets don't just wobble in place — as the cursor moves,
+   they actually travel between each other's original positions/angles,
+   like a slow carousel: cursor right → the trio rolls left, so the
+   middle jacket eases into the left jacket's original spot (position +
+   angle) and the right jacket eases into the middle's spot. Cursor left
+   does the mirror image. Keyed by cfg.key (not array index) since the
+   three glTFs load asynchronously and can finish in any order. */
+const slotIndex = { left:0, center:1, right:2 };
+const SLOT_SPACING = Math.abs(layout[2].x - layout[1].x);
+const baseX  = [layout[0].x,  layout[1].x,  layout[2].x];
+const baseRy = [layout[0].ry, layout[1].ry, layout[2].ry];
+const baseZ  = [layout[0].z,  layout[1].z,  layout[2].z];
+// slot one step to the left of each — used when the cursor moves right
+// (trio rolls left); index 0 has no real left neighbor so it extrapolates
+// one more slot further out, letting it drift off-frame gracefully.
+const prevX  = [baseX[0]-SLOT_SPACING,  baseX[0], baseX[1]];
+const prevRy = [baseRy[0]-(baseRy[1]-baseRy[0]), baseRy[0], baseRy[1]];
+const prevZ  = [baseZ[0], baseZ[0], baseZ[1]];
+// slot one step to the right of each — used when the cursor moves left
+const nextX  = [baseX[1], baseX[2], baseX[2]+SLOT_SPACING];
+const nextRy = [baseRy[1], baseRy[2], baseRy[2]+(baseRy[2]-baseRy[1])];
+const nextZ  = [baseZ[1], baseZ[2], baseZ[2]];
+
+const MODEL_BASE_ROTATION_Y = -Math.PI/2;
+
+function placeModel(root, cfg){
+    const box = new THREE.Box3().setFromObject(root);
+    const center = box.getCenter(new THREE.Vector3());
+    root.position.sub(center);
+    const size = box.getSize(new THREE.Vector3());
+    const norm = size.y > 0 ? 1.55/size.y : 1;
+    root.scale.setScalar(norm);
+    root.rotation.y = MODEL_BASE_ROTATION_Y;
+
+    tintInstance(root, cfg.tint, cfg.rough);
+
+    const holder = new THREE.Group();
+    holder.add(root);
+
+    // lightweight invisible box used ONLY for hover/click raycasting —
+    // testing 12 triangles instead of the full high-poly jacket mesh every
+    // frame is what removes the hover lag.
+    const hitBox = new THREE.Mesh(
+        new THREE.BoxGeometry(size.x*norm*1.05, size.y*norm*1.05, size.z*norm*1.05),
+        new THREE.MeshBasicMaterial({ visible:false })
+    );
+    holder.add(hitBox);
+
+    holder.position.set(cfg.x, cfg.y, cfg.z);
+    holder.rotation.y = cfg.ry;
+    holder.scale.setScalar(cfg.scale);
+    rig.add(holder);
+    // currentRy tracks the smoothed rotation used every frame so per-jacket
+    // turning eases independently instead of snapping with the rig.
+    instances.push({ holder, cfg, currentRy: cfg.ry, hitBox });
+}
+
+function revealCanvas(){
+    renderer.domElement.classList.add('ready');
+    loaderEl.classList.add('hidden');
+}
+
+const loader = new GLTFLoader();
+const loadProgress = { left:0, center:0, right:0 };
+let loadedCount = 0;
+
+function updateLoaderText(){
+    const avg = (loadProgress.left + loadProgress.center + loadProgress.right)/3;
+    loaderPct.textContent = `Loading — ${Math.round(avg)}%`;
+}
+
+function checkAllLoaded(){
+    loadedCount++;
+    if(loadedCount === layout.length) revealCanvas();
+}
+
+layout.forEach(cfg=>{
+    loader.load(
+        cfg.file,
+        (gltf)=>{ placeModel(gltf.scene, cfg); checkAllLoaded(); },
+        (xhr)=>{
+            if(xhr.total){
+                loadProgress[cfg.key] = Math.min(100, (xhr.loaded/xhr.total)*100);
+                updateLoaderText();
+            }
+        },
+        ()=>{ placeModel(buildFallbackShell(), cfg); checkAllLoaded(); }
+    );
+});
+
+/* ---------------- pointer tracking ---------------- */
+const raycaster = new THREE.Raycaster();
+
+let mx = 0, my = 0;
+window.addEventListener('mousemove', (e)=>{
+    mx = (e.clientX/window.innerWidth - 0.5) * 2;
+    my = (e.clientY/window.innerHeight - 0.5) * 2;
+}, { passive:true });
+window.addEventListener('touchmove', (e)=>{
+    if(!e.touches[0]) return;
+    mx = (e.touches[0].clientX/window.innerWidth - 0.5) * 2;
+    my = (e.touches[0].clientY/window.innerHeight - 0.5) * 2;
+}, { passive:true });
+
+/* ---------------- jacket hover + click → dedicated page ---------------- */
+const hrefMap = { left:'left.html', center:'middle.html', right:'right.html' };
+
+let hoveredKey = null;
+
+function jacketAtNdc(ndcX, ndcY){
+    if(!instances.length) return null;
+    raycaster.setFromCamera({ x:ndcX, y:ndcY }, camera);
+    const hits = raycaster.intersectObjects(instances.map(it=>it.hitBox), false);
+    if(!hits.length) return null;
+    const found = instances.find(it=>it.hitBox===hits[0].object);
+    return found ? found.cfg.key : null;
+}
+
+const themeRimColors = {
+    left:   new THREE.Color(0xf2f0ec),
+    center: new THREE.Color(0xc7cbd1),
+    right:  new THREE.Color(0xe13a2e)
+};
+const REDRIM_DEFAULT = new THREE.Color(0xe13a2e);
+let targetRimColor = REDRIM_DEFAULT;
+
+function updateHover(){
+    const key = jacketAtNdc(mx, -my);
+    if(key === hoveredKey) return;
+    hoveredKey = key;
+
+    document.body.style.cursor = hoveredKey ? 'pointer' : 'default';
+
+    // theme change: swap a body class (CSS handles the smooth crossfade
+    // itself) and point the rim light's lerp target at the matching color —
+    // both are one-off, near-zero-cost writes, not per-frame work.
+    document.body.classList.remove('hover-left','hover-center','hover-right');
+    if(hoveredKey){
+        document.body.classList.add('hover-'+hoveredKey);
+        targetRimColor = themeRimColors[hoveredKey];
+    } else {
+        targetRimColor = REDRIM_DEFAULT;
+    }
+}
+
+window.addEventListener('click', (e)=>{
+    const ndcX = (e.clientX/window.innerWidth) * 2 - 1;
+    const ndcY = -((e.clientY/window.innerHeight) * 2 - 1);
+    const key = jacketAtNdc(ndcX, ndcY);
+    if(key) window.location.href = hrefMap[key];
+});
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------- smoothing ----------------
+   Single-stage spring driving smX/smY from the raw cursor position. Tuned
+   just under critical damping (damping ≈ 2*sqrt(stiffness) at critical)
+   so the motion glides to a stop smoothly with no jitter and no bounce —
+   this is the one number that makes the whole slide feel "smooth" rather
+   than snappy or laggy, since every animated value below reads from
+   smX/smY instead of the raw mouse position. */
+let smX = 0, smY = 0;   // smoothed value driving the scene
+let velX = 0, velY = 0; // spring velocity
+
+const SPRING_STIFFNESS = 0.36;  // pull toward the cursor (higher = less lag)
+const SPRING_DAMPING   = 1.25;  // independent velocity bleed (near-critical: smooth glide, no overshoot)
+
+function updateSpring(){
+    const ax = (mx - smX) * SPRING_STIFFNESS - velX * SPRING_DAMPING;
+    const ay = (my - smY) * SPRING_STIFFNESS - velY * SPRING_DAMPING;
+    velX += ax;
+    velY += ay;
+    smX  += velX;
+    smY  += velY;
+}
+
+let t = 0;
+function animate(){
+    requestAnimationFrame(animate);
+    t += 0.008;
+
+    updateHover(); // cursor + theme class only — no panels, no per-frame DOM writes
+
+    redRim.color.lerp(targetRimColor, 0.06); // cheap: one color lerp, matches the CSS wash
+    updateStickTheme(); // sticks tint toward the hovered jacket's theme color
+
+    if(!reduceMotion){
+        updateSpring();
+
+        // Group pan trimmed down further — same feel, noticeably less total left/right travel.
+        rig.rotation.y = -smX * 0.14;
+        rig.rotation.x = -smY * 0.07;
+        rig.position.x = smX * 0.055;
+
+        backdrop.rotation.y = -smX * 0.015;
+
+        camera.position.x = smX * 0.2;
+        camera.position.y = 1.9 - smY * 0.1;
+        // subtle overall zoom in/out with the flow of the cursor — dollies
+        // in a touch as the cursor moves away from center, eases back out
+        // as it returns, on top of the per-jacket zoom below
+        const camMoveMag = Math.min(1, Math.abs(smX) + Math.abs(smY)*0.5);
+        camera.position.z = 6.0 - camMoveMag * 0.22;
+        camera.lookAt(0, 1.86, 0);
+
+        // ---- carousel swap ----
+        // Cursor right → the trio rolls left: the middle jacket eases toward
+        // the left jacket's original position/angle/depth, and the right
+        // jacket eases toward the middle's — little by little, driven by
+        // the smoothed smX. Cursor left mirrors this the other way. Keyed
+        // by cfg.key (not array index) since the glTFs can finish loading
+        // in any order. TRAVEL_SCALE caps how far into the neighboring slot
+        // each jacket goes at full cursor deflection, so the swap reads
+        // clearly without sliding as far off to the sides as before.
+        const TRAVEL_SCALE = 0.34;
+        instances.forEach(it=>{
+            const i = slotIndex[it.cfg.key];
+            let targetX, targetRy, targetZ;
+            if(smX >= 0){
+                const f = smX * TRAVEL_SCALE;
+                targetX  = baseX[i]  + (prevX[i]  - baseX[i])  * f;
+                targetRy = baseRy[i] + (prevRy[i] - baseRy[i]) * f;
+                targetZ  = baseZ[i]  + (prevZ[i]  - baseZ[i])  * f;
+            } else {
+                const f = -smX * TRAVEL_SCALE;
+                targetX  = baseX[i]  + (nextX[i]  - baseX[i])  * f;
+                targetRy = baseRy[i] + (nextRy[i] - baseRy[i]) * f;
+                targetZ  = baseZ[i]  + (nextZ[i]  - baseZ[i])  * f;
+            }
+
+            // ease toward the slot target — fast enough to feel connected
+            // to the cursor (no lag), gentle enough to stay smooth, plus a
+            // small idle bob for life
+            it.holder.position.x += (targetX - it.holder.position.x) * 0.08;
+            it.holder.position.z += (targetZ - it.holder.position.z) * 0.08;
+            it.holder.position.y  = it.cfg.y + Math.sin(t*1.3 + i*1.7) * 0.015;
+
+            // a light zoom while a jacket is mid-travel between slots
+            const moveMag = Math.min(1, Math.abs(smX));
+            it.holder.scale.setScalar(it.cfg.scale * (1 + moveMag * 0.045));
+
+            it.currentRy += (targetRy - it.currentRy) * 0.08;
+            it.holder.rotation.y = it.currentRy;
+        });
+
+        dust.rotation.y += 0.0006;
+        updateSnow();
+
+        const s = 1.06 + Math.sin(t*0.12)*0.012;
+        const bx = -smX * 28;
+        const by = -smY * 10;
+        bgImage.style.transform = `translate3d(${bx}px, ${by}px, 0) scale(${s})`;
+    }
+
+    renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', ()=>{
+    const { w, h } = renderSize();
+    camera.aspect = w/h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Cinematic 3D Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            width: 100%;
+            height: 600vh;
+            background-color: #020204;
+            overflow-x: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        #video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        #bg-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.35; /* Blends nicely into cinematic dark background environment */
+            filter: contrast(1.1) brightness(0.8) saturate(0.9);
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 2;
+            pointer-events: none;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        /* Flash Overlay effect on redirect */
+        #green-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(circle, #00ff33 0%, #00330a 100%);
+            opacity: 0;
+            z-index: 9999;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+<body>
+
+    <div id="video-container">
+        <video id="bg-video" autoplay loop muted playsinline>
+            <source src="back.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div id="canvas-container"></div>
+    <div id="green-flash"></div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- Scene Setup ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        
+        // Deep premium studio fog
+        scene.fog = new THREE.FogExp2(0x020204, 0.025);
+
+        const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        
+        // Ultra luxury tone mapping properties
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.4;
+        container.appendChild(renderer.domElement);
+
+        // --- Premium Studio Stage Lighting Setup ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.15);
+        scene.add(ambientLight);
+
+        // Dramatic High Key Light
+        const keyLight = new THREE.DirectionalLight(0xffffff, 3.5);
+        keyLight.position.set(8, 12, 10);
+        keyLight.castShadow = true;
+        keyLight.shadow.mapSize.width = 4096; // Enhanced crisp sharp shadows
+        keyLight.shadow.mapSize.height = 4096;
+        keyLight.shadow.camera.near = 0.5;
+        keyLight.shadow.camera.far = 20;
+        keyLight.shadow.bias = -0.0005;
+        keyLight.shadow.normalBias = 0.005;
+        scene.add(keyLight);
+
+        // Neon Cyber Rim Reflection Light 1
+        const rimLight1 = new THREE.DirectionalLight(0x00dfff, 4.0);
+        rimLight1.position.set(-10, 8, -8);
+        scene.add(rimLight1);
+
+        // Warm Contrast Rim Reflection Light 2
+        const rimLight2 = new THREE.DirectionalLight(0xff5500, 1.5);
+        rimLight2.position.set(10, -4, -10);
+        scene.add(rimLight2);
+
+        // Underneath Subtle Glow Point Light
+        const floorGlow = new THREE.PointLight(0xffffff, 3, 12);
+        floorGlow.position.set(0, -4, 2);
+        scene.add(floorGlow);
+
+        // --- Model Structuring Hierarchy ---
+        let model = null;
+        const modelGroup = new THREE.Group();
+        const pivotGroup = new THREE.Group();
+        pivotGroup.add(modelGroup);
+        scene.add(pivotGroup);
+
+        // State machine configuration for GSAP engine map tracking
+        const animProxy = {
+            rotationX: 0,
+            rotationY: 0,
+            rotationZ: 0,
+            camX: 0,
+            camY: 0,
+            camZ: 11,
+            targetX: 0,
+            targetY: 0,
+            targetZ: 0
+        };
+
+        // --- Model Loading & Asset Optimization Mechanics ---
+        const loader = new THREE.GLTFLoader();
+        loader.load('middle.glb', (gltf) => {
+            model = gltf.scene;
+
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    
+                    // Inject rich physical properties on load
+                    if (child.material) {
+                        child.material.roughness = Math.min(child.material.roughness, 0.35);
+                        child.material.metalness = Math.max(child.material.metalness, 0.4);
+                        child.material.envMapIntensity = 3.0;
+                        child.material.needsUpdate = true;
+                    }
+                }
+            });
+
+            // Precision bounding box calculation to guarantee absolute fitting geometry
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 3.8 / maxDim;
+
+            model.position.set(-center.x, -center.y, -center.z);
+            modelGroup.scale.setScalar(scale);
+            modelGroup.add(model);
+
+            buildCinematicTimeline();
+        }, undefined, (error) => console.error("Asset initialization failed:", error));
+
+        // --- Luxury Product Choreography Mapping ---
+        function buildCinematicTimeline() {
+            // Establish clean starting camera defaults
+            animProxy.camX = 0;
+            animProxy.camY = 0.5;
+            animProxy.camZ = 10;
+
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: "body",
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 1.2, // Ultra velvety smooth tracking speed acceleration
+                    invalidateOnRefresh: true
+                }
+            });
+
+            // Phase 1: Swoop down, dramatic slow presentation crawl
+            tl.to(animProxy, {
+                duration: 2,
+                camX: -3.5,
+                camY: 2.0,
+                camZ: 6.5,
+                rotationY: Math.PI * 0.45,
+                rotationX: 0.25,
+                rotationZ: -0.1,
+                ease: "power2.inOut"
+            })
+            // Phase 2: Upside elevation, complex axis flip rotation discovery view
+            .to(animProxy, {
+                duration: 2,
+                camX: 4.5,
+                camY: -1.5,
+                camZ: 5.0,
+                rotationY: Math.PI * 1.35,
+                rotationX: -0.3,
+                rotationZ: 0.2,
+                targetY: -0.2,
+                ease: "power1.inOut"
+            })
+            // Phase 3: Extreme Macro Close-up focal depth presentation frame
+            .to(animProxy, {
+                duration: 2,
+                camX: 0,
+                camY: 0.1,
+                camZ: 2.2, // Powerful focal frame tracking distance configuration
+                rotationY: Math.PI * 2.0,
+                rotationX: 0.05,
+                rotationZ: 0,
+                targetY: 0,
+                ease: "power3.inOut"
+            });
+
+            // Complete process action step handler for redirect trigger setup
+            ScrollTrigger.create({
+                trigger: "body",
+                start: "bottom-=15 bottom",
+                onEnter: () => {
+                    gsap.to("#green-flash", {
+                        opacity: 1,
+                        duration: 0.5,
+                        ease: "power3.out",
+                        onComplete: () => {
+                            window.location.href = "next.html";
+                        }
+                    });
+                }
+            });
+        }
+
+        // --- Interaction Mechanics Setup ---
+        const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+        window.addEventListener('mousemove', (e) => {
+            mouse.targetX = (e.clientX / window.innerWidth) - 0.5;
+            mouse.targetY = (e.clientY / window.innerHeight) - 0.5;
+        });
+
+        // --- High-Performance Animation Matrix Execution ---
+        const clock = new THREE.Clock();
+        const cameraTarget = new THREE.Vector3();
+
+        function renderFrame() {
+            requestAnimationFrame(renderFrame);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // Parallax mouse tracker math interpolation
+            mouse.x += (mouse.targetX - mouse.x) * 0.04;
+            mouse.y += (mouse.targetY - mouse.y) * 0.04;
+
+            if (model) {
+                // Combine custom timeline tracks with live smooth responsive cursor mechanics
+                pivotGroup.rotation.y = animProxy.rotationY + (mouse.x * 0.25);
+                pivotGroup.rotation.x = animProxy.rotationX + (mouse.y * 0.25);
+                pivotGroup.rotation.z = animProxy.rotationZ;
+
+                // Organic cinematic micro floating engine calculations
+                modelGroup.position.y = Math.sin(elapsedTime * 1.0) * 0.06;
+                modelGroup.position.x = Math.cos(elapsedTime * 0.7) * 0.03;
+                modelGroup.position.z = Math.sin(elapsedTime * 0.5) * 0.04;
+            }
+
+            // Smooth high refresh state tracking lerps
+            camera.position.x += (animProxy.camX - camera.position.x) * 0.06;
+            camera.position.y += (animProxy.camY - camera.position.y) * 0.06;
+            camera.position.z += (animProxy.camZ - camera.position.z) * 0.06;
+
+            cameraTarget.x += (animProxy.targetX - cameraTarget.x) * 0.06;
+            cameraTarget.y += (animProxy.targetY - cameraTarget.y) * 0.06;
+            cameraTarget.z += (animProxy.targetZ - cameraTarget.z) * 0.06;
+            camera.lookAt(cameraTarget);
+
+            renderer.render(scene, camera);
+        }
+
+        renderFrame();
+
+        // --- Viewport Resize Handler Mechanics ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
